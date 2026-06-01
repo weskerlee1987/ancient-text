@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>新月馆 · 剑道人形测试</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;background:#0b0e17;color:#e0e4ed;min-height:100vh;overflow-x:hidden}
+#stars-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.shell{position:relative;z-index:1;width:min(calc(100vw - 18px),460px);margin:0 auto;padding:1.2rem 0 4rem}
+
+/* ── Header ── */
+.header{text-align:center;padding:1.5rem .5rem 1.8rem;position:relative}
+.header::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100px;height:2px;background:linear-gradient(90deg,transparent,#d4a853,transparent)}
+.header .badge{display:inline-block;font-size:.7rem;color:#5a6274;letter-spacing:4px;border:1px solid rgba(212,168,83,.15);padding:3px 14px;border-radius:20px;background:rgba(212,168,83,.04);margin-bottom:.6rem}
+.header h1{font-size:2rem;font-weight:700;background:linear-gradient(135deg,#f0d68a,#d4a853,#b8862d);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:4px;line-height:1.2}
+.header .lead{font-size:.82rem;color:#8892a4;margin-top:.7rem;line-height:1.5}
+.header .lead em{font-style:normal;color:#d4a853}
+.header .desc{margin-top:1.2rem;padding:.9rem 1rem;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:16px;text-align:left;font-size:.78rem;color:#6b7280;line-height:1.65}
+.header .desc strong{color:#a0a8b8;font-weight:600}
+.header .author{font-size:.65rem;color:#4a5264;margin-top:1rem;letter-spacing:1px}
+
+/* ── Buttons ── */
+.action-wrap{display:grid;gap:8px;margin-top:1.2rem}
+.btn-primary{background:linear-gradient(135deg,#d4a853,#b8862d);color:#0b0e17;border:none;border-radius:14px;padding:14px;font-size:.9rem;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .2s;box-shadow:0 8px 24px rgba(212,168,83,.2)}
+.btn-primary:active{transform:scale(.97)}
+.btn-ghost{background:rgba(255,255,255,.04);color:#e0e4ed;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:13px;font-size:.8rem;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .2s}
+.btn-ghost:active{transform:scale(.97)}
+.hidden{display:none!important}
+
+/* ── Quiz Stage ── */
+.quiz-stage{min-height:calc(100vh - 3rem);display:flex;flex-direction:column;justify-content:center}
+.progress-bar{margin:0 4px 1rem}
+.progress-track{width:100%;height:6px;overflow:hidden;border-radius:3px;background:rgba(255,255,255,.06)}
+.progress-fill{height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,#d4a853,#f0d68a);transition:width .25s ease}
+.progress-meta{display:flex;justify-content:space-between;margin-top:6px;color:#5a6274;font-size:.7rem}
+
+.question-card{background:linear-gradient(145deg,rgba(26,30,43,.8),rgba(13,16,26,.8));border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:1.5rem 1.2rem;position:relative;overflow:hidden}
+.question-card::before{content:'';position:absolute;top:-60px;right:-60px;width:140px;height:140px;border-radius:50%;background:rgba(212,168,83,.04);pointer-events:none}
+.question-card>:not(.qtag){position:relative;z-index:1}
+.qtag{font-size:.6rem;color:#5a6274;letter-spacing:2px;font-weight:500;position:relative;z-index:1}
+.question-card h3{margin-top:.6rem;font-size:clamp(1.15rem,5.8vw,1.55rem);font-weight:600;line-height:1.45;color:#e0e4ed}
+.options{display:grid;gap:10px;margin-top:1rem}
+.opt-btn{text-align:left;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .2s;min-height:60px;font-family:inherit;color:#e0e4ed;font-size:.82rem;font-weight:400}
+.opt-btn:active{background:rgba(212,168,83,.06);border-color:rgba(212,168,83,.2)}
+.opt-btn strong{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;font-size:.75rem;font-weight:700;color:#d4a853;background:rgba(212,168,83,.1);flex-shrink:0;padding-top:1px}
+.opt-btn span{padding-top:3px;line-height:1.5}
+
+/* ── Result ── */
+.result-card{background:linear-gradient(145deg,rgba(26,30,43,.85),rgba(13,16,26,.85));border:1px solid rgba(255,255,255,.06);border-radius:24px;padding:1.2rem;text-align:center;position:relative;overflow:hidden}
+.result-card::before{content:'';position:absolute;inset:8px;border:1px solid rgba(212,168,83,.04);border-radius:18px;pointer-events:none;z-index:0}
+.result-card>*{position:relative;z-index:1}
+.result-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;text-align:left;margin-bottom:.5rem}
+.result-eyebrow{font-size:.55rem;color:#5a6274;letter-spacing:3px;font-weight:500}
+.result-type{font-size:.5rem;color:#3a4254;letter-spacing:2px}
+.result-label{font-size:.78rem;color:#6b7280;font-weight:500;margin-top:.8rem}
+.result-avatar{width:min(54vw,200px);aspect-ratio:1;margin:.6rem auto;overflow:hidden;border-radius:24px;border:1px solid rgba(212,168,83,.1);box-shadow:0 0 40px rgba(212,168,83,.05)}
+.result-avatar svg{width:100%;height:100%;display:block}
+.result-name{font-size:clamp(1.7rem,9vw,2.8rem);font-weight:700;background:linear-gradient(135deg,#f0d68a,#d4a853);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.05;margin-top:2px}
+.result-meta{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:.5rem}
+.result-code{display:inline-block;padding:5px 11px;border-radius:8px;background:#d4a853;color:#0b0e17;font-size:.85rem;font-weight:700;letter-spacing:2px}
+.result-match{display:inline-block;padding:5px 9px;border-radius:8px;background:rgba(255,255,255,.04);color:#6b7280;font-size:.7rem;font-weight:600}
+.result-summary{padding:.8rem;border-radius:14px;background:rgba(212,168,83,.06);border:1px solid rgba(212,168,83,.08);font-size:.85rem;font-weight:600;line-height:1.5;color:#e0e4ed;margin-top:.6rem}
+.result-verdict{margin-top:.6rem;padding:.7rem .8rem;border-radius:14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);text-align:left}
+.result-verdict .vl{font-size:.6rem;color:#5a6274;font-weight:500;letter-spacing:2px;margin-bottom:4px}
+.result-verdict .vt{font-size:.75rem;color:#8892a4;line-height:1.55;font-weight:400}
+.result-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:.7rem}
+.result-tags span{padding:4px 8px;border-radius:6px;font-size:.7rem;font-weight:500;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);color:#6b7280}
+.dim-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:.6rem}
+.dim-item{padding:5px 8px;border-radius:10px;font-size:.68rem;font-weight:500;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);color:#5a6274}
+.result-footer{font-size:.6rem;color:#3a4254;margin-top:.8rem;letter-spacing:2px}
+
+.share-panel{margin-top:.8rem;padding:1rem;border-radius:18px;background:rgba(26,30,43,.6);border:1px solid rgba(255,255,255,.04)}
+.share-box{padding:.8rem;border-radius:12px;background:rgba(255,255,255,.02);border:1px dashed rgba(212,168,83,.2)}
+.share-box .sl{font-size:.6rem;color:#5a6274;font-weight:500;letter-spacing:2px;margin-bottom:5px}
+.share-box .st{font-size:.75rem;color:#8892a4;line-height:1.6}
+.share-acts{display:grid;gap:8px;margin-top:.7rem}
+
+.result-notes{display:grid;gap:10px;margin-top:.7rem}
+.result-notes article{padding:1rem;border-radius:18px;background:rgba(26,30,43,.6);border:1px solid rgba(255,255,255,.04)}
+.result-notes h3{font-size:.85rem;font-weight:600;color:#d4a853;margin-bottom:5px}
+.result-notes p{font-size:.75rem;color:#6b7280;line-height:1.6;margin:0}
+.scroll-hint{margin-top:.7rem;font-size:.62rem;color:#3a4254;text-align:center;letter-spacing:1px}
+.scroll-hint::after{content:" \2193";color:#d4a853}
+
+@media(hover:hover){
+  .opt-btn:hover{background:rgba(212,168,83,.06);border-color:rgba(212,168,83,.15);transform:translateY(-1px)}
+  .btn-primary:hover{box-shadow:0 12px 30px rgba(212,168,83,.3)}
+}
+</style>
+</head>
+<body>
+<canvas id="stars-canvas"></canvas>
+
+<div class="shell">
+
+<div class="header" id="hero">
+  <span class="badge">XYPD · 新月剑道馆</span>
+  <h1>剑道人形测试</h1>
+  <p class="lead">测测你在馆里到底是什么<em>品种</em><br>认真答，别装</p>
+  <div class="desc" id="intro">
+    <strong>▎28 道题，测出你的馆内人设</strong><br>
+    没有标准答案，只有真实的你。<br>
+    题目全来自新月馆的真实训练场景——<br>
+    答完你就明白师父那个眼神是怎么回事了。
+  </div>
+  <div class="action-wrap"><button class="btn-primary" id="start-quiz">开始测试</button></div>
+  <p class="author">新月馆后勤人员 出品</p>
+</div>
+
+<!-- Quiz -->
+<section class="hidden" id="quiz-panel">
+<div class="quiz-stage hidden" id="quiz-stage">
+  <div class="progress-bar">
+    <div class="progress-track"><div class="progress-fill" id="pf"></div></div>
+    <div class="progress-meta"><span id="pq">第 1 题</span><span>维度隐藏</span></div>
+  </div>
+  <div class="question-card">
+    <p class="qtag" id="qtag">第 1 题</p>
+    <h3 id="qtitle"></h3>
+    <div class="options" id="qopts"></div>
+  </div>
+</div>
+</section>
+
+<!-- Result -->
+<section class="hidden" id="result-panel">
+<div class="result-card" id="rcard">
+  <div class="result-hd">
+    <span class="result-eyebrow">新月馆 · 人设判定</span>
+    <span class="result-type">16 种馆内品种</span>
+  </div>
+  <p class="result-label">你的馆内人设：</p>
+  <div class="result-avatar" id="ravatar"></div>
+  <h2 class="result-name" id="rname"></h2>
+  <div class="result-meta">
+    <span class="result-code" id="rcode"></span>
+    <span class="result-match" id="rmatch"></span>
+  </div>
+  <p class="result-summary" id="rsum"></p>
+  <div class="result-verdict">
+    <p class="vl">判词</p>
+    <p class="vt" id="rdetail"></p>
+  </div>
+  <div class="result-tags" id="rtags"></div>
+  <div class="dim-grid" id="rdim"></div>
+  <p class="result-footer">新月馆后勤人员 出品</p>
+  <p class="scroll-hint">下滑还有馆友锐评和服药指南</p>
+</div>
+
+<div class="share-panel">
+  <div class="share-box">
+    <p class="sl">分享文案</p>
+    <p class="st" id="rshare"></p>
+  </div>
+  <div class="share-acts">
+    <button class="btn-primary" id="copy-result">复制文案</button>
+    <button class="btn-ghost" id="restart-quiz">重新测一遍</button>
+  </div>
+</div>
+
+<div class="result-notes">
+  <article><h3>馆友锐评</h3><p id="rsocial"></p></article>
+  <article><h3>服药指南</h3><p id="radvice"></p></article>
+</div>
+</section>
+</div>
+
+<script>
+// ── Stars ──
+(function(){
+  const c=document.getElementById('stars-canvas'),ctx=c.getContext('2d');
+  let w,h,s=[];
+  function r(){w=c.width=innerWidth;h=c.height=innerHeight;s=[];for(let i=0;i<80;i++)s.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.6+.3,a:Math.random(),s:Math.random()*.005+.002})}
+  function d(){ctx.clearRect(0,0,w,h);s.forEach(p=>{p.a+=p.s;let o=.3+Math.sin(p.a)*.5;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(200,210,230,${o})`;ctx.fill()});requestAnimationFrame(d)}
+  window.addEventListener('resize',r);r();d();
+})();
+
+// ── Data ──
+const AXIS={
+  attack:{leftCode:"M",rightCode:"L",leftLabel:"谋",rightLabel:"莽"},
+  effort:{leftCode:"B",rightCode:"J",leftLabel:"佛",rightLabel:"卷"},
+  vibe:{leftCode:"Y",rightCode:"F",leftLabel:"显",rightLabel:"隐"},
+  grit:{leftCode:"K",rightCode:"G",leftLabel:"刚",rightLabel:"苟"}
+};
+
+const Q=[
+  {t:"换好护具第一件事？",o:[
+    {l:"扫一圈今天谁来——盘一下跟谁打有得赚",e:{attack:-1}},
+    {l:"直接找人开干——热身就是干",e:{attack:1}},
+    {l:"先发呆——等身体自己开机",e:{effort:-1}}
+  ]},
+  {t:"师父让所有人练面击，你会？",o:[
+    {l:"先看别人打——找最省力的路子",e:{attack:-1}},
+    {l:"用力喊用力打——师父，看我！我！在！练！",e:{vibe:-1}},
+    {l:"默默打自己的——不求最好但求不出错",e:{vibe:1}}
+  ]},
+  {t:"自由稽古配对，你最想跟谁打？",o:[
+    {l:"打得凶的——越猛越有得学",e:{grit:-1}},
+    {l:"打得稳的——安全第一",e:{grit:1}},
+    {l:"打得菜的——正好拿新招练练手",e:{attack:-1}}
+  ]},
+  {t:"师父说「再来十组」，你心里在想？",o:[
+    {l:"来就来——谁怕谁",e:{effort:1,grit:-1}},
+    {l:"能少一组是一组——命重要",e:{effort:-1,grit:1}},
+    {l:"行吧——反正也没别的安排",e:{effort:-1}}
+  ]},
+  {t:"对手突然猛攻，你会？",o:[
+    {l:"迎上去——看谁先碎，我赌是他",e:{grit:-1,attack:1}},
+    {l:"先撤半步——让他冲累了再说",e:{grit:1,attack:-1}},
+    {l:"一边撤一边喊——气势不能输",e:{vibe:-1,grit:-1}}
+  ]},
+  {t:"今天状态差，但人已经到了馆里，你会？",o:[
+    {l:"来都来了——混完就是赢",e:{effort:-1}},
+    {l:"越烂越练——不练只会更烂",e:{effort:1}},
+    {l:"先跟人吹水——状态靠聊出来",e:{vibe:-1}}
+  ]},
+  {t:"打了一个漂亮的得本后，最真实的反应是？",o:[
+    {l:"大喊一声——全场都给我听着！",e:{vibe:-1}},
+    {l:"心里狂喜——脸上装没事人",e:{vibe:1}},
+    {l:"复盘怎么蒙上的——下次还能不能再蒙一回",e:{attack:-1}}
+  ]},
+  {t:"师父纠正你的动作，你会？",o:[
+    {l:"认真听认真改——下次必须搞对",e:{effort:1}},
+    {l:"听懂了——但身体说：你懂个屁",e:{effort:-1}},
+    {l:"记下来——回头琢磨怎么变成自己的阴招",e:{attack:-1}}
+  ]},
+  {t:"训练中场休息，你在干嘛？",o:[
+    {l:"找水找地方坐——能不动就不动",e:{effort:-1}},
+    {l:"还在练——别人休息我偷偷加练",e:{effort:1}},
+    {l:"满馆溜达——看谁打得好、谁又在白给",e:{attack:-1}}
+  ]},
+  {t:"遇到一个一直不出手的对手，你会？",o:[
+    {l:"他不打我打——直接冲",e:{attack:1}},
+    {l:"他不打我更好——看谁先急",e:{attack:-1,grit:1}},
+    {l:"假动作骗他——骗出破绽再下手",e:{attack:-1}}
+  ]},
+  {t:"训练结束收拾护具，你？",o:[
+    {l:"最快收完跑路——躺平不香吗",e:{effort:-1}},
+    {l:"慢慢收——边收边复盘",e:{vibe:-1}},
+    {l:"默默收完——谁也别跟我说话",e:{vibe:1}}
+  ]},
+  {t:"一个技术反复练不好，你怎么办？",o:[
+    {l:"换下一个——人生不是只有这一下",e:{effort:-1}},
+    {l:"死磕——今天必须打出个说法",e:{effort:1,grit:-1}},
+    {l:"停下来想想——哪个环节出了问题",e:{attack:-1}}
+  ]},
+  {t:"馆里来了新人体验，你第一反应是？",o:[
+    {l:"上去打招呼——我来带带你",e:{vibe:-1}},
+    {l:"观察下——看看有没有潜力",e:{attack:-1}},
+    {l:"关我什么事——我练我的",e:{vibe:1}}
+  ]},
+  {t:"别人说你打太凶了，你？",o:[
+    {l:"凶就对了——又不是来喝下午茶的",e:{grit:-1,attack:1}},
+    {l:"有吗——我觉得还好啊",e:{grit:1}},
+    {l:"好——下次偷偷凶，不让你看出来",e:{attack:-1}}
+  ]},
+  {t:"训练后半段体力快见底了，你会？",o:[
+    {l:"咬牙硬撑——死也要站着",e:{grit:-1,effort:1}},
+    {l:"降速苟着——打完就是胜利",e:{grit:1,effort:-1}},
+    {l:"靠喊声续命——喊越大声我越不累",e:{vibe:-1,grit:-1}}
+  ]},
+  {t:"最爱馆里什么声音？",o:[
+    {l:"竹刀相击的脆响——干架的声音",e:{grit:-1,attack:1}},
+    {l:"大家的喊声和笑声——热闹，像过年",e:{vibe:-1}},
+    {l:"收工时装护具的声音——解放的号角",e:{effort:-1,grit:1}}
+  ]},
+  {t:"明天有一场馆内比赛，你今晚会？",o:[
+    {l:"临阵磨枪——加练几组",e:{effort:1}},
+    {l:"早睡——养足精神明天干",e:{effort:-1}},
+    {l:"想战术——先把明天的对手打一遍",e:{attack:-1}}
+  ]},
+  {t:"你觉得自己在馆里是什么段位的存在？",o:[
+    {l:"人未到声先到——大家知道我来了",e:{vibe:-1}},
+    {l:"可有可无——你练你的我练我的",e:{vibe:1}},
+    {l:"平时隐身——关键时刻才被想起",e:{vibe:1,attack:-1}}
+  ]},
+  {t:"师父说「今天练切返」，你心里？",o:[
+    {l:"切返是我的强项——看我表演",e:{effort:1}},
+    {l:"切返好累——能跳过直接打稽古吗",e:{effort:-1}},
+    {l:"切返就切返——找个角落自己慢慢抡",e:{vibe:1}}
+  ]},
+  {t:"不小心打到对方手，你会？",o:[
+    {l:"马上道歉——对不起对不起！",e:{vibe:1,grit:1}},
+    {l:"假装没发生——继续打下一个",e:{attack:1,grit:-1}},
+    {l:"嘴上道歉——心里想：谁让你手举那么低",e:{attack:-1}}
+  ]},
+  {t:"训练完一起吃饭，你会？",o:[
+    {l:"必须去——来都来了不吃亏了",e:{vibe:-1}},
+    {l:"看情况——太累就不去了",e:{effort:-1}},
+    {l:"去——但闷头吃谁也别跟我说话",e:{vibe:1}}
+  ]},
+  {t:"练剑道的终极目标是？",o:[
+    {l:"变强——干掉所有人",e:{effort:1,attack:1}},
+    {l:"开心就好——练到老打到老",e:{effort:-1,grit:1}},
+    {l:"追求剑道境界——活成自己的一部分",e:{attack:-1}}
+  ]},
+  {t:"别人说你动作丑但有效，你怎么回？",o:[
+    {l:"有效就行——丑怎么了，你又打不过我",e:{attack:1,grit:-1}},
+    {l:"有点在意——回头调整调整",e:{effort:1,vibe:1}},
+    {l:"大家笑我也笑——笑归笑分我拿了",e:{vibe:-1,attack:-1}}
+  ]},
+  {t:"馆里只有你跟一个不太熟的人，你会？",o:[
+    {l:"主动搭话——不能冷场",e:{vibe:-1}},
+    {l:"各练各的——这种默契最舒服",e:{vibe:1}},
+    {l:"先观察——看看什么水平再决定动不动手",e:{attack:-1}}
+  ]},
+  {t:"用一个词形容你的剑道风格？",o:[
+    {l:"猛——先上了再说",e:{attack:1,grit:-1}},
+    {l:"稳——不出错就是最大进攻",e:{attack:-1,grit:1}},
+    {l:"浪——今天猛明天稳看我心情",e:{vibe:-1}}
+  ]},
+  {t:"如果可以跳过基础，最想多练什么？",o:[
+    {l:"实战稽古——真刀真枪干最爽",e:{grit:-1,attack:1}},
+    {l:"动作细节——基础决定上限",e:{attack:-1,effort:1}},
+    {l:"都行——练什么不是练",e:{effort:-1}}
+  ]},
+  {t:"最受不了哪种训练场景？",o:[
+    {l:"节奏太慢——等得人想打人",e:{attack:1,grit:-1}},
+    {l:"强度太大——我感觉快交代在这儿了",e:{effort:-1,grit:1}},
+    {l:"没人说话——太压抑了说句话行不行",e:{vibe:-1}}
+  ]},
+  {t:"给未来的自己一句关于剑道的话？",o:[
+    {l:"别停——继续干就完了",e:{effort:1,grit:-1}},
+    {l:"活着就好——别受伤，下次还能来",e:{effort:-1,grit:1}},
+    {l:"玩开心点——认真你就输了",e:{vibe:-1,effort:-1}}
+  ]}
+];
+
+// ── 16 Results ──
+const R={
+  MBYK:{n:"馆内老阴师",s:"你的剑道不是正面冲突，是心理博弈。表面岁月静好，内心已经给对方安排了三种死法。",d:"你最擅长的事是让别人打得难受。你不是不攻击，你只是等别人自己犯错。你是新月馆里那种打的时候不痛不痒，打完回家越想越气的人。",so:"馆友跟你打完通常会沉默两秒，然后憋出一句「妈的，又被你阴了一道」。",a:"心眼已经够多了。偶尔光明正大赢一次，不然大家真以为你只会走偏门。阳间赢法也挺爽的，你试试。",sh:"测完了，我是新月馆的「馆内老阴师」。不是不出手，是在等你自投罗网。表面岁月静好，心里已经给你安排了三种死法。",tg:["心眼在线","等你送","打完越想越气"],cd:"M·B·Y·K",bg:"#1a2040",ac:"#5a7a5a",fc:"smirk"},
+  MBYG:{n:"省电演技家",s:"表面上快没电了，其实后台在偷偷全速运行。能用表情解决的事，绝不动用体力。",d:"你很会管理别人对你的预期。能装死就装死，但该出手的时候从不含糊。你的哲学：先让别人以为你不行，然后突然行一下——翻倍快乐翻倍震惊。",so:"馆友经常以为你今天只是来凑数的，结果你突然一剑打得全场安静。",a:"装可以——别装到真没电了。你比表现出来的强，偶尔不藏那么深，让大家知道你也不是纯休眠模式。",sh:"测完了，我是新月馆的「省电演技家」。看起来快没电了，其实后台在偷偷运行。主打一个低功耗高回报。",tg:["低耗高能","假装不行","实则全在算"],cd:"M·B·Y·G",bg:"#1a2420",ac:"#8a7a5a",fc:"sleep"},
+  MBFK:{n:"闷声偷点怪",s:"你低调得像背景板，但你总是在别人不注意的时候突然抢下一口气。安静，但有牙。",d:"你不爱出风头，但你对时机有一种安静的凶狠——像馆里一把暗器。别人以为你佛，结果你该顶的时候一点不软。",so:"馆友容易低估你，直到跟你对上才发现：原来你不是没火，是把火藏起来等我了。",a:"已经够会藏了。下次赢了稍微嘚瑟一下——让人知道你不是运气好，是真的有牙。",sh:"测完了，我是新月馆的「闷声偷点怪」。看起来像背景板，其实在等你露出破绽。安静但有牙。",tg:["安静有牙","不响但准","延迟存在感"],cd:"M·B·F·K",bg:"#1a2224",ac:"#4a6a5a",fc:"calm"},
+  MBFG:{n:"养生仙人",s:"你不是不努力——你只是很早就看透了：剑道可以练，命也得留着。明天还得上班呢。",d:"你是馆里最清醒的人。别人上头想燃烧自己，你已经开始盘算训练完几点到家、冰箱里还有没有菜。能赢最好，不能赢也别死，活着下次还来。",so:"馆友嘴上说你摆，心里其实有点羡慕。因为你不会被训练掏空，也不会被胜负搞崩。你是在享受剑道——顺便养生。",a:"继续活着，这是一种长期主义。偶尔认真三分钟，别让大家真以为你只是来蹭空调的。",sh:"测完了，我是新月馆的「养生仙人」。剑道可以练，汗可以流——没必要把自己练成工伤。主打一个活着下次还来。",tg:["省电天才","长期主义","活着就好"],cd:"M·B·F·G",bg:"#1a2620",ac:"#6a8a6a",fc:"sleep"},
+  MJYK:{n:"卷王老六",s:"最卷的人里心眼最多的，心眼最多的人里最卷的。又细又狠，说的就是你。",d:"你不是单纯努力，也不是单纯会算——你两边都要。别人靠热情练剑道，你靠结构细节和计算把对面按进Excel。你不会大声喊，但压迫感一格一格把空间锁死。",so:"馆友觉得跟你打像被审计——每一步都有预算，每一剑都有KPI。你不是在练剑，是在做项目管理。",a:"别把所有对练都当棋下。偶尔失控一下不会死——甚至能让大家发现你也不是纯人机。",sh:"测完了，我是新月馆的「卷王老六」。我不是来快乐剑道的，我是来把对手按进Excel的。",tg:["又细又狠","压迫感满","每一步都有目的"],cd:"M·J·Y·K",bg:"#1a2230",ac:"#4a6a6a",fc:"focus"},
+  MJYG:{n:"考核型选手",s:"平时不一定最炸，但一到需要展示的时候就会突然变得很像回事。你的剑道带有交付意识。",d:"你很懂怎么把努力变成可见成果。每当局里盯着看、有人瞄着你的时候，你就会突然上线——动作气势节奏全部到位。",so:"馆友说你太会了，但也承认你确实会拿分。你身上有一种把职场带进剑道馆的味道：动作可交付，气势要对齐。",a:"别只在有观众的时候才认真。日常也全力以赴一下——不然你的剑道会越来越像季度汇报。",sh:"测完了，我是新月馆的「考核型选手」。动作要呈现，气势要对齐——别人练剑，我像在做绩效材料。离谱但有效。",tg:["场合感强","很会呈现","目标明确"],cd:"M·J·Y·G",bg:"#1a2428",ac:"#8a7a4a",fc:"spark"},
+  MJFK:{n:"偷偷升级的卷王",s:"嘴上说随便练练，身体一次没少来。练着练着别人发现——你怎么突然变强了？",d:"你是最容易低估的新月馆选手。不说狠话不表演，但你一直来一直练一直改。你不是天降主角，是后台静默更新。别人还在宣布重新做人，你已经偷偷练完一轮了。",so:"馆友一开始不会注意你。但时间一长，大家突然发现：你什么时候变强的？你是不是背着大家开会员了？",a:"你已经很能熬了。偶尔把成果打出来，别总在角落偷偷升级——不然大家只觉得你阴得很低调。",sh:"测完了，我是新月馆的「偷偷升级的卷王」。嘴上说随便练练，身体一次没少来。练着练着——你怎么打不过我了？",tg:["静音升级","后台变强","稳定基本盘"],cd:"M·J·F·K",bg:"#1a2624",ac:"#5a7a68",fc:"calm"},
+  MJFG:{n:"标准答案",s:"你不炸裂，但不出错。新月馆的稳定基本盘——别人负责疯，你负责安全送到及格线。",d:"你很烦人的稳定。别人还在上头抽象白给，你已经把动作距离节奏都按标准摆好了。你的强不是爆炸，是稳稳把自己送过线。",so:"馆友觉得你像标准答案。但真到需要稳定输出的时候，大家又会默默想起你。不炸场，但能过线。",a:"已经很稳了——下次给自己一点锋芒，不然大家只记得你能过，不记得你能吓人。",sh:"测完了，我是新月馆的「标准答案」。动作合规节奏在线，不出错就是我的美学。别人负责疯，我负责安全下班。",tg:["稳定过线","不出错美学","安心基本盘"],cd:"M·J·F·G",bg:"#1a2422",ac:"#6a7a5a",fc:"calm"},
+  LBYK:{n:"热血笨蛋",s:"脑子还在加载，身体已经冲了。燃是真的燃，白给也是真的白给。你是新月馆的气氛点火器。",d:"你最擅长把普通训练打出决战的气氛。对面还没动你先燃了，机会还没出来你已经冲了。你不是不会想——是想法赶到的时候战斗已经结束了。你是最像热血主角的人，也是最常在白给后尴尬挠头说「再来一把」的人。",so:"馆友一边笑你中二，一边靠你那股傻劲续命。你是新月馆的快乐打火机——一出现大家就知道今天不会太平。",a:"别戒热血——那是你的超能力。你要做的是给热血装个刹车，不然每次都像把自己发射出去，落点全靠命。",sh:"测完了，我是新月馆的「热血笨蛋」。脑子还在加载身体已经冲了。气势必须准时上班，理智——下次一定带。",tg:["先冲再说","白给专业户","气氛点火"],cd:"L·B·Y·K",bg:"#2a1e1a",ac:"#b86a4a",fc:"spark"},
+  LBYG:{n:"显眼包本包",s:"不一定最强，但你一来馆里就像插了电——还顺便开了音响。有人练剑，有人负责把练剑变成综艺。",d:"你靠存在感活着。喊声表情吐槽反应一个不少，你不一定每一剑都中，但一定每一剑都有节目效果。你不是来抢镜的——你站在那里镜头就自己转过来了。",so:"大家嘴上说你吵——但你不来的时候馆里安静得像进了图书馆。你是那种让训练有声音的人。",a:"气氛是你的超能力。再补一点技术，别人就不只是笑你——是笑着笑着发现打不过你了。",sh:"测完了，我是新月馆的「显眼包本包」。我来了馆里像过年——中不中另说，气氛必须拉满。",tg:["人未到声先到","气氛担当","自带弹幕"],cd:"L·B·Y·G",bg:"#2a2420",ac:"#b87a4a",fc:"happy"},
+  LBFK:{n:"菜刀战神",s:"不一定打得对，但一定不怕死。技术可以抽象，杀心不能打折。菜得坦荡，狠得真诚。",d:"你的剑道哲学：不一定会，但真敢上。你可能会白给，但白给之前一定要让对面也掉块肉——换命不亏，血赚的是精神。有时候你确实很抽象，但一旦杀疯了也是真的能打穿。",so:"馆友跟你打很矛盾——说你菜吧你真敢顶，说你强吧你动作又很野。最烦的是你明明乱，但乱得有攻击性。",a:"狠是天赋，菜是现状。不用变温柔——把动作练准一点，大家会发现你不是莽，是危险。",sh:"测完了，我是新月馆的「菜刀战神」。不一定会但真敢上——菜得坦荡狠得真诚。来新月馆找我？先想好要不要跟我换命。",tg:["不一定会但真敢","白给也要带走一个","菜得真诚"],cd:"L·B·F·K",bg:"#2a2018",ac:"#9a6a4a",fc:"focus"},
+  LBFG:{n:"快乐广播体操",s:"动作不一定对，但汗一定出。态度拉满，精准度随缘。不强求技术，但情绪价值拉满。",d:"你最大的天赋不是剑术——是快乐出勤。不管练成什么样，反正人来了护具穿了汗流了。赢了血赚输了不亏。别人练剑是修行，你练剑像参加大型快乐广播体操——快乐拉满。",so:"馆友一边纠正你一边被你治愈。你是馆里的快乐背景音——少了你馆里少了一半人味。",a:"继续快乐——但偶尔认真一下，你会发现：妈的，原来我也不是完全不会。快乐和进步可以同时有。",sh:"测完了，我是新月馆的「快乐广播体操」。技术先不谈情绪价值拉满——来都来了汗也出了，剑道有没有进步不知道，但我确实很快乐。",tg:["快乐出勤","动作随缘","情绪价值"],cd:"L·B·F·G",bg:"#1a2820",ac:"#7a9a5a",fc:"happy"},
+  LJYK:{n:"干就完了战神",s:"想那么多干嘛——干就完了。别人还在判断距离，你已经把人撞上去了。脑子？下次一定带。",d:"你的剑道突出一个身体比脑子快。你不是完全不会思考——是身体根本不给脑子排队的机会。启动速度拉满，加载进度为零。",so:"馆友爱看你打——你一上场就一定有事发生；也怕跟你打——因为那个事大概率发生在自己身上。你是新月馆的野生启动按钮，没人知道按下去会炸哪里但一定很响。",a:"你够勇了。冲之前多看一眼——就一眼——能少白给很多次。",sh:"测完了，我是新月馆的「干就完了战神」。脑子还在加载身体已经开团。我的剑道没有前摇——只有启动。",tg:["先干再说","身体比脑子快","启动没有前摇"],cd:"L·J·Y·K",bg:"#2a1c18",ac:"#a85a3a",fc:"focus"},
+  LJYG:{n:"悲壮主角",s:"你是真的努力，也是真的有戏。你的训练自带BGM——悲壮的那种。别人流汗是训练，你流汗像剧情进入第二幕。",d:"一次普通切返训练到你心里已经剪成了成长蒙太奇。你不是不认真——是太容易把自己演成命运悲惨的主角。累了不是累了，是第二幕低谷。",so:"馆友知道你是在真燃烧——只是别人累了是累了，你累了像马上要发表获奖感言。",a:"BGM可以有——但别每次都放悲壮版。试试快乐点的配乐，说不定打得更顺。",sh:"测完了，我是新月馆的「悲壮主角」。别人流汗是训练，我流汗像剧情进入第二幕。练剑可以没有观众——但我的内心必须有BGM。",tg:["自带BGM","努力很认真也很悲壮","训练即大片"],cd:"L·J·Y·G",bg:"#2a241e",ac:"#8a6a4a",fc:"spark"},
+  LJFK:{n:"人形推土机",s:"别人练剑，你像在拆馆。不是在打人——是在攻城。不是很优雅，但非常有压迫感。",d:"你认真起来像推土机。别人还在分配体力你像刚插上电，别人开始喘你刚热身结束。技术细不细不管，强度先拉满。",so:"馆友跟你打完会喘——不是累的，是气你怎么还有电。你是新月馆的体力BUG，大家都以为你该没了结果你还在往前顶。",a:"能量多得有点吓人了。切细一点别全拿来撞墙——你会从体力怪物变成真正的人间凶器。",sh:"测完了，我是新月馆的「人形推土机」。别人练剑我像在拆馆。大家都开始喘了——我还在发电。",tg:["越练越猛","像在攻城","体力无限"],cd:"L·J·F·K",bg:"#1a2028",ac:"#5a7a58",fc:"focus"},
+  LJFG:{n:"沉默的卷闸",s:"你不吵不闹不喊口号——但你一直在。像一堵慢慢砌起来的墙——一开始不起眼，等大家反应过来已经绕不过你了。",d:"你是馆里最闷的卷王。不表演不喊累不晒朋友圈——就是来、练、走。比你来得晚的来得频的已经走了，你还在。",so:"馆友很少当面夸你——因为你不给机会。一被夸就默默走开，仿佛被夸奖是一种伤害。但大家都知道你是新月馆的地基。",a:"已经够能扛了。偶尔让自己舒服一点——不用每次都把自己当苦行僧。快乐地卷，不丢人。",sh:"测完了，我是新月馆的「沉默的卷闸」。我不吵不闹不喊口号——但我一直在。像一堵墙——不响，但推不动。",tg:["闷头练","静水流深","地基型选手"],cd:"L·J·F·G",bg:"#1a2628",ac:"#5a7260",fc:"calm"}
+};
+
+// ── Scoring ──
+const scores={attack:0,effort:0,vibe:0,grit:0},last={attack:0,effort:0,vibe:0,grit:0};
+let cur=0;
+
+function al(k){return scores[k]<0||(scores[k]===0&&last[k]<=0)}
+function code(){return[al('attack')?AXIS.attack.leftCode:AXIS.attack.rightCode,
+  al('effort')?AXIS.effort.leftCode:AXIS.effort.rightCode,
+  al('vibe')?AXIS.vibe.leftCode:AXIS.vibe.rightCode,
+  al('grit')?AXIS.grit.leftCode:AXIS.grit.rightCode].join('')}
+function cc(){return[al('attack')?AXIS.attack.leftLabel:AXIS.attack.rightLabel,
+  al('effort')?AXIS.effort.leftLabel:AXIS.effort.rightLabel,
+  al('vibe')?AXIS.vibe.leftLabel:AXIS.vibe.rightLabel,
+  al('grit')?AXIS.grit.leftLabel:AXIS.grit.rightLabel].join('')}
+function ab(k){const v=scores[k],l=al(k);const p=Math.min(99,60+Math.abs(v)*7);return(l?AXIS[k].leftLabel:AXIS[k].rightLabel)+' '+p+'%'}
+function mp(){return Math.round(Math.min(96,65+Object.values(scores).reduce((a,b)=>a+Math.abs(b),0)/4*5))}
+
+// ── Avatar SVG ──
+function av(r){
+  const bg=r.bg,ac=r.ac,fc=r.fc,dk='#1c1812',sk='#f2c9a5';
+  const fs={smirk:'<circle cx="148" cy="136" r="5" fill="'+dk+'"/><circle cx="192" cy="136" r="5" fill="'+dk+'"/><path d="M158 162c15 9 32 7 44-5" stroke="'+dk+'" stroke-width="4.5" fill="none" stroke-linecap="round"/>',
+    calm:'<path d="M137 136h20" stroke="'+dk+'" stroke-width="4.5" stroke-linecap="round"/><path d="M185 136h20" stroke="'+dk+'" stroke-width="4.5" stroke-linecap="round"/><path d="M162 164h32" stroke="'+dk+'" stroke-width="4.5" stroke-linecap="round"/>',
+    focus:'<path d="M134 133l25 6" stroke="'+dk+'" stroke-width="4.5" stroke-linecap="round"/><path d="M206 133l-25 6" stroke="'+dk+'" stroke-width="4.5" stroke-linecap="round"/><path d="M161 162c12 5 27 5 38 0" stroke="'+dk+'" stroke-width="4.5" fill="none" stroke-linecap="round"/>',
+    happy:'<path d="M135 135c8-7 18-7 26 0" stroke="'+dk+'" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M180 135c8-7 18-7 26 0" stroke="'+dk+'" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M157 160c13 17 38 17 50 0" stroke="'+dk+'" stroke-width="4.5" fill="none" stroke-linecap="round"/>',
+    spark:'<circle cx="148" cy="136" r="5" fill="'+dk+'"/><circle cx="192" cy="136" r="5" fill="'+dk+'"/><path d="M155 160c14 17 42 17 54 0" stroke="'+dk+'" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M130 116l8 8M210 116l-8 8" stroke="#d4a853" stroke-width="4" stroke-linecap="round"/>',
+    sleep:'<path d="M136 136c8-7 18-7 26 0" stroke="'+dk+'" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M178 136c8-7 18-7 26 0" stroke="'+dk+'" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M160 162c12 7 25 7 37 0" stroke="'+dk+'" stroke-width="4.5" fill="none" stroke-linecap="round"/>'};
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 340"><rect width="340" height="340" rx="36" fill="'+bg+'" opacity=".6"/>'
+    +'<circle cx="80" cy="72" r="36" fill="#fffdf8" opacity=".08"/><circle cx="280" cy="96" r="52" fill="#fffdf8" opacity=".04"/>'
+    +'<text x="28" y="52" fill="#e0e4ed" font-size="26" font-family="sans-serif" font-weight="900">'+r.cd+'</text>'
+    +'<text x="28" y="72" fill="#5a6274" font-size="10" font-family="sans-serif" font-weight="700">新·月·馆</text>'
+    +'<path d="M108 192c-22 20-32 50-34 83h55c2-26 10-50 24-72z" fill="'+ac+'" stroke="'+dk+'" stroke-width="5" stroke-linejoin="round"/>'
+    +'<path d="M217 192c23 20 33 50 35 83h-56c-2-26-10-50-24-72z" fill="'+ac+'" stroke="'+dk+'" stroke-width="5" stroke-linejoin="round"/>'
+    +'<path d="M118 190c11-23 33-34 57-34 24 0 46 12 57 34l-18 58H135z" fill="#f8f2e8" stroke="'+dk+'" stroke-width="5" stroke-linejoin="round"/>'
+    +'<path d="M135 193h80l15 42c-31 15-74 15-110 0z" fill="'+ac+'" stroke="'+dk+'" stroke-width="5" stroke-linejoin="round"/>'
+    +'<path d="M142 197c11 9 22 15 33 18 10-4 21-10 32-18" stroke="#fffdf8" stroke-width="4" opacity=".6" fill="none" stroke-linecap="round"/>'
+    +'<path d="M128 212c-22 5-40 20-48 44" stroke="'+ac+'" stroke-width="20" stroke-linecap="round" fill="none"/>'
+    +'<path d="M215 212c20 4 36 18 46 38" stroke="'+ac+'" stroke-width="20" stroke-linecap="round" fill="none"/>'
+    +'<path d="M128 212c-22 5-40 20-48 44" stroke="'+dk+'" stroke-width="5" stroke-linecap="round" fill="none" opacity=".9"/>'
+    +'<path d="M215 212c20 4 36 18 46 38" stroke="'+dk+'" stroke-width="5" stroke-linecap="round" fill="none" opacity=".9"/>'
+    +'<circle cx="170" cy="120" r="56" fill="'+sk+'" stroke="'+dk+'" stroke-width="5"/>'
+    +'<path d="M118 106c14-43 82-58 116-13 8 10 13 23 13 39-45-19-90-19-129-2z" fill="'+ac+'" stroke="'+dk+'" stroke-width="5" stroke-linejoin="round"/>'
+    +'<path d="M121 164c23 30 72 32 99 0" fill="none" stroke="'+dk+'" stroke-width="5" opacity=".08" stroke-linecap="round"/>'
+    +fs[fc]+'<path d="M125 254h90" stroke="'+dk+'" stroke-width="5" stroke-linecap="round" opacity=".15"/>'
+    +'<text x="170" y="288" text-anchor="middle" fill="#5a6274" font-size="13" font-family="sans-serif" font-weight="700" opacity=".3">新·月·剑·道·馆</text></svg>';
+}
+
+// ── DOM ──
+const $=id=>document.getElementById(id);
+const hero=$('hero'),panel=$('quiz-panel'),stage=$('quiz-stage'),rpanel=$('result-panel');
+const pf=$('pf'),pq=$('pq'),qtag=$('qtag'),qtitle=$('qtitle'),qopts=$('qopts');
+const rn=$('rname'),rc=$('rcode'),rm=$('rmatch'),rs=$('rsum'),rt=$('rtags'),rd=$('rdim'),rsh=$('rshare');
+const rd2=$('rdetail'),rso=$('rsocial'),rad=$('radvice');
+
+function sf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+
+function start(){
+  cur=0;Object.keys(scores).forEach(k=>{scores[k]=0;last[k]=0});
+  hero.classList.add('hidden');panel.classList.remove('hidden');
+  stage.classList.remove('hidden');rpanel.classList.add('hidden');
+  renderQ();panel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function renderQ(){
+  const q=Q[cur];
+  pf.style.width=((cur+1)/Q.length*100)+'%';
+  pq.textContent='第 '+(cur+1)+' / '+Q.length+' 题';
+  qtag.textContent='第 '+(cur+1)+' 题';
+  qtitle.textContent=q.t;
+  qopts.innerHTML='';
+  sf(q.o).forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt-btn';
+    b.innerHTML='<strong>'+String.fromCharCode(65+i)+'</strong><span>'+o.l+'</span>';
+    b.addEventListener('click',()=>ans(o.e));
+    qopts.appendChild(b);
+  });
+}
+
+function ans(e){
+  Object.entries(e).forEach(([k,v])=>{scores[k]+=v;last[k]=v<0?-1:1});
+  if(cur<Q.length-1){cur++;renderQ();return}
+  showR();
+}
+
+function showR(){
+  const c=code(),res=R[c],m=mp();
+  const dims=[ab('attack'),ab('effort'),ab('vibe'),ab('grit')];
+  rn.textContent=res.n;rc.textContent=res.cd;
+  rm.textContent='匹配度 '+m+'% · '+cc()+'型';
+  $('ravatar').innerHTML=av(res);
+  rs.textContent=res.s;rd2.textContent=res.d;rso.textContent=res.so;
+  rad.textContent=res.a;rsh.textContent=res.sh;
+  rt.innerHTML='';res.tg.forEach(t=>{const s=document.createElement('span');s.textContent=t;rt.appendChild(s)});
+  rd.innerHTML='';dims.forEach(d=>{const n=document.createElement('div');n.className='dim-item';n.textContent=d;rd.appendChild(n)});
+  stage.classList.add('hidden');panel.classList.add('hidden');
+  rpanel.classList.remove('hidden');rpanel.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+$('start-quiz').addEventListener('click',start);
+$('restart-quiz').addEventListener('click',start);
+$('copy-result').addEventListener('click',async()=>{
+  try{await navigator.clipboard.writeText(rsh.textContent);$('copy-result').textContent='已复制';setTimeout(()=>{$('copy-result').textContent='复制文案'},1600)}
+  catch(e){$('copy-result').textContent='复制失败，请手动长按'}
+});
+</script>
+</body>
+</html>
