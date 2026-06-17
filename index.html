@@ -85,6 +85,42 @@ body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sa
 .scroll-hint{margin-top:.7rem;font-size:.62rem;color:#3a4254;text-align:center;letter-spacing:1px}
 .scroll-hint::after{content:" \2193";color:#d4a853}
 
+
+#game-ui{width:100%}
+.game-ui-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;width:100%;min-height:200px}
+.r4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;width:100%;max-width:340px;margin:0 auto}
+.r4z{padding:14px;border-radius:16px;border:2px solid rgba(255,255,255,.06);background:linear-gradient(145deg,rgba(26,30,43,.7),rgba(13,16,26,.7));text-align:center;font-size:clamp(1.2rem,5vw,1.8rem);font-weight:700;color:#5a6274;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;aspect-ratio:1.3}
+.r4z:active{transform:scale(.95)}
+.r4z.active{border-color:#d4a853;background:rgba(212,168,83,.12);box-shadow:0 0 25px rgba(212,168,83,.2);color:#f0d68a}
+.r4z.hit{background:rgba(76,175,80,.25)!important;border-color:#4caf50!important;color:#4caf50!important}
+.r4z.miss{background:rgba(244,67,54,.2)!important;border-color:#f44336!important;color:#f44336!important}
+.rw{position:relative;width:100%;height:260px;display:flex;align-items:center;justify-content:center}
+.rb{position:absolute;padding:14px 24px;border-radius:16px;border:2px solid rgba(212,168,83,.3);background:linear-gradient(135deg,#d4a853,#b8862d);color:#0b0e17;font-size:.9rem;font-weight:700;cursor:pointer;transition:left .08s,top .08s;white-space:nowrap}
+.rb:active{transform:scale(.92)}
+.ta{width:100%;height:260px;border-radius:20px;border:1px solid rgba(255,255,255,.04);background:rgba(255,255,255,.015);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden}
+.tc{font-size:clamp(2.5rem,12vw,4rem);font-weight:900;color:#f0d68a;line-height:1;pointer-events:none;position:relative;z-index:2}
+.tl{font-size:.7rem;color:#5a6274;letter-spacing:2px;pointer-events:none;position:relative;z-index:2}
+.fms{font-size:1rem;font-weight:600;color:#e0e4ed;line-height:1.4;margin:.5rem 0;min-height:3rem}
+.fmb{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:300px;margin:.5rem auto}
+.fm{padding:16px;border-radius:16px;border:2px solid rgba(255,255,255,.06);background:linear-gradient(145deg,rgba(26,30,43,.7),rgba(13,16,26,.7));cursor:pointer;text-align:center}
+.fm:active{transform:scale(.94)}
+.fm .da{font-size:clamp(1.1rem,5vw,1.5rem);font-weight:700;color:#e0e4ed}
+.fm .dl{font-size:.7rem;color:#5a6274;margin-top:3px}
+.fm.correct{background:rgba(76,175,80,.15)!important;border-color:#4caf50!important;color:#4caf50!important}
+.fm.wrong{background:rgba(244,67,54,.12)!important;border-color:#f44336!important;color:#f44336!important}
+.ba{text-align:center;padding:1rem}
+.bt{font-size:clamp(2.5rem,12vw,4rem);font-weight:900;color:#e0e4ed;line-height:1}
+.bu{font-size:.75rem;color:#5a6274;margin-top:4px}
+.bl{display:flex;gap:12px;justify-content:center;align-items:flex-end;margin:.5rem 0;height:80px}
+.bl2{width:35px;border-radius:17px 17px 24px 24px;background:rgba(212,168,83,.08);border:1px solid rgba(212,168,83,.12);position:relative;overflow:hidden}
+.bl2 .f{position:absolute;bottom:0;left:0;right:0;background:rgba(212,168,83,.2);border-radius:0 0 23px 23px;transition:height .1s linear}
+.fb{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100;padding:12px 24px;border-radius:16px;font-size:1.2rem;font-weight:700;pointer-events:none;opacity:0;transition:opacity .15s}
+.fb.show{opacity:1}
+.fb.ok{background:rgba(76,175,80,.2);border:1px solid rgba(76,175,80,.4);color:#4caf50}
+.fb.fail{background:rgba(244,67,54,.2);border:1px solid rgba(244,67,54,.4);color:#f44336}
+.gi{display:flex;justify-content:space-between;font-size:.72rem;color:#5a6274;padding:0 .3rem;margin:.3rem 0;width:100%}
+.gi strong{color:#d4a853;font-weight:700}
+
 @media(hover:hover){
   .opt-btn:hover{background:rgba(212,168,83,.06);border-color:rgba(212,168,83,.15);transform:translateY(-1px)}
   .btn-primary:hover{box-shadow:0 12px 30px rgba(212,168,83,.3)}
@@ -115,7 +151,7 @@ body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sa
 <div class="quiz-stage hidden" id="quiz-stage">
   <div class="progress-bar">
     <div class="progress-track"><div class="progress-fill" id="pf"></div></div>
-    <div class="progress-meta"><span id="pq">第 1 题</span><span>维度隐藏</span></div>
+    <div class="progress-meta"><span id="pq">第 1 题</span><span></span></div>
   </div>
   <div class="question-card">
     <p class="qtag" id="qtag">第 1 题</p>
@@ -124,6 +160,21 @@ body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sa
   </div>
 </div>
 </section>
+<!-- Game Stage -->
+<div class="quiz-stage hidden" id="game-stage">
+  <div class="progress-bar">
+    <div class="progress-track"><div class="progress-fill" id="pf2"></div></div>
+    <div class="progress-meta"><span id="pq2">验证关卡</span><span></span></div>
+  </div>
+  <div class="question-card" id="game-card" style="min-height:380px">
+    <p class="qtag" id="game-tag">验证关卡</p>
+    <h3 id="game-title" style="font-size:.9rem">准备好了吗？</h3>
+    <div id="game-content"></div>
+    <div id="game-ui" class="game-ui-wrap"></div>
+    <div id="game-error" style="display:none;padding:.5rem;background:rgba(244,67,54,.15);border-radius:12px;margin-top:1rem;font-size:.75rem;color:#f44336;text-align:center"></div>
+  </div>
+</div>
+<div id="fb" class="fb"></div>
 
 <!-- Result -->
 <section class="hidden" id="result-panel">
@@ -145,7 +196,7 @@ body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sa
     <p class="vt" id="rdetail"></p>
   </div>
   <div class="result-tags" id="rtags"></div>
-  <div class="dim-grid" id="rdim"></div>
+  
   <p class="result-footer">新月馆后勤人员 出品</p>
   <p class="scroll-hint">下滑还有馆友锐评和服药指南</p>
 </div>
@@ -186,148 +237,119 @@ const AXIS={
   grit:{leftCode:"K",rightCode:"G",leftLabel:"刚",rightLabel:"苟"}
 };
 
-const Q=[
-  {t:"换好护具第一件事？",o:[
-    {l:"扫一圈今天谁来——盘一下跟谁打有得赚",e:{attack:-1}},
-    {l:"直接找人开干——热身就是干",e:{attack:1}},
-    {l:"先发呆——等身体自己开机",e:{effort:-1}}
-  ]},
-  {t:"师父让所有人练面击，你会？",o:[
-    {l:"先看别人打——找最省力的路子",e:{attack:-1}},
-    {l:"用力喊用力打——师父，看我！我！在！练！",e:{vibe:-1}},
-    {l:"默默打自己的——不求最好但求不出错",e:{vibe:1}}
-  ]},
-  {t:"自由稽古配对，你最想跟谁打？",o:[
-    {l:"打得凶的——越猛越有得学",e:{grit:-1}},
-    {l:"打得稳的——安全第一",e:{grit:1}},
-    {l:"打得菜的——正好拿新招练练手",e:{attack:-1}}
-  ]},
-  {t:"师父说「再来十组」，你心里在想？",o:[
-    {l:"来就来——谁怕谁",e:{effort:1,grit:-1}},
-    {l:"能少一组是一组——命重要",e:{effort:-1,grit:1}},
-    {l:"行吧——反正也没别的安排",e:{effort:-1}}
-  ]},
-  {t:"对手突然猛攻，你会？",o:[
-    {l:"迎上去——看谁先碎，我赌是他",e:{grit:-1,attack:1}},
-    {l:"先撤半步——让他冲累了再说",e:{grit:1,attack:-1}},
-    {l:"一边撤一边喊——气势不能输",e:{vibe:-1,grit:-1}}
-  ]},
-  {t:"今天状态差，但人已经到了馆里，你会？",o:[
-    {l:"来都来了——混完就是赢",e:{effort:-1}},
-    {l:"越烂越练——不练只会更烂",e:{effort:1}},
-    {l:"先跟人吹水——状态靠聊出来",e:{vibe:-1}}
-  ]},
-  {t:"打了一个漂亮的得本后，最真实的反应是？",o:[
-    {l:"大喊一声——全场都给我听着！",e:{vibe:-1}},
-    {l:"心里狂喜——脸上装没事人",e:{vibe:1}},
-    {l:"复盘怎么蒙上的——下次还能不能再蒙一回",e:{attack:-1}}
-  ]},
-  {t:"师父纠正你的动作，你会？",o:[
-    {l:"认真听认真改——下次必须搞对",e:{effort:1}},
-    {l:"听懂了——但身体说：你懂个屁",e:{effort:-1}},
-    {l:"记下来——回头琢磨怎么变成自己的阴招",e:{attack:-1}}
-  ]},
-  {t:"训练中场休息，你在干嘛？",o:[
-    {l:"找水找地方坐——能不动就不动",e:{effort:-1}},
-    {l:"还在练——别人休息我偷偷加练",e:{effort:1}},
-    {l:"满馆溜达——看谁打得好、谁又在白给",e:{attack:-1}}
-  ]},
-  {t:"遇到一个一直不出手的对手，你会？",o:[
-    {l:"他不打我打——直接冲",e:{attack:1}},
-    {l:"他不打我更好——看谁先急",e:{attack:-1,grit:1}},
-    {l:"假动作骗他——骗出破绽再下手",e:{attack:-1}}
-  ]},
-  {t:"训练结束收拾护具，你？",o:[
-    {l:"最快收完跑路——躺平不香吗",e:{effort:-1}},
-    {l:"慢慢收——边收边复盘",e:{vibe:-1}},
-    {l:"默默收完——谁也别跟我说话",e:{vibe:1}}
-  ]},
-  {t:"一个技术反复练不好，你怎么办？",o:[
-    {l:"换下一个——人生不是只有这一下",e:{effort:-1}},
-    {l:"死磕——今天必须打出个说法",e:{effort:1,grit:-1}},
-    {l:"停下来想想——哪个环节出了问题",e:{attack:-1}}
-  ]},
-  {t:"馆里来了新人体验，你第一反应是？",o:[
-    {l:"上去打招呼——我来带带你",e:{vibe:-1}},
-    {l:"观察下——看看有没有潜力",e:{attack:-1}},
-    {l:"关我什么事——我练我的",e:{vibe:1}}
-  ]},
-  {t:"别人说你打太凶了，你？",o:[
-    {l:"凶就对了——又不是来喝下午茶的",e:{grit:-1,attack:1}},
-    {l:"有吗——我觉得还好啊",e:{grit:1}},
-    {l:"好——下次偷偷凶，不让你看出来",e:{attack:-1}}
-  ]},
-  {t:"训练后半段体力快见底了，你会？",o:[
-    {l:"咬牙硬撑——死也要站着",e:{grit:-1,effort:1}},
-    {l:"降速苟着——打完就是胜利",e:{grit:1,effort:-1}},
-    {l:"靠喊声续命——喊越大声我越不累",e:{vibe:-1,grit:-1}}
-  ]},
-  {t:"最爱馆里什么声音？",o:[
+const Q=[{t:"最爱馆里什么声音？",o:[
     {l:"竹刀相击的脆响——干架的声音",e:{grit:-1,attack:1}},
     {l:"大家的喊声和笑声——热闹，像过年",e:{vibe:-1}},
     {l:"收工时装护具的声音——解放的号角",e:{effort:-1,grit:1}}
-  ]},
-  {t:"明天有一场馆内比赛，你今晚会？",o:[
-    {l:"临阵磨枪——加练几组",e:{effort:1}},
-    {l:"早睡——养足精神明天干",e:{effort:-1}},
-    {l:"想战术——先把明天的对手打一遍",e:{attack:-1}}
-  ]},
-  {t:"你觉得自己在馆里是什么段位的存在？",o:[
-    {l:"人未到声先到——大家知道我来了",e:{vibe:-1}},
-    {l:"可有可无——你练你的我练我的",e:{vibe:1}},
-    {l:"平时隐身——关键时刻才被想起",e:{vibe:1,attack:-1}}
-  ]},
-  {t:"师父说「今天练切返」，你心里？",o:[
-    {l:"切返是我的强项——看我表演",e:{effort:1}},
-    {l:"切返好累——能跳过直接打稽古吗",e:{effort:-1}},
-    {l:"切返就切返——找个角落自己慢慢抡",e:{vibe:1}}
-  ]},
-  {t:"不小心打到对方手，你会？",o:[
-    {l:"马上道歉——对不起对不起！",e:{vibe:1,grit:1}},
-    {l:"假装没发生——继续打下一个",e:{attack:1,grit:-1}},
-    {l:"嘴上道歉——心里想：谁让你手举那么低",e:{attack:-1}}
-  ]},
-  {t:"训练完一起吃饭，你会？",o:[
-    {l:"必须去——来都来了不吃亏了",e:{vibe:-1}},
-    {l:"看情况——太累就不去了",e:{effort:-1}},
-    {l:"去——但闷头吃谁也别跟我说话",e:{vibe:1}}
-  ]},
-  {t:"练剑道的终极目标是？",o:[
-    {l:"变强——干掉所有人",e:{effort:1,attack:1}},
-    {l:"开心就好——练到老打到老",e:{effort:-1,grit:1}},
-    {l:"追求剑道境界——活成自己的一部分",e:{attack:-1}}
-  ]},
-  {t:"别人说你动作丑但有效，你怎么回？",o:[
+  ]},{t:"训练结束收拾护具，你？",o:[
+    {l:"最快收完跑路——躺平不香吗",e:{effort:-1}},
+    {l:"慢慢收——边收边复盘",e:{vibe:-1}},
+    {l:"默默收完——谁也别跟我说话",e:{vibe:1}}
+  ]},{t:"馆里来了新人体验，你第一反应是？",o:[
+    {l:"上去打招呼——我来带带你",e:{vibe:-1}},
+    {l:"观察下——看看有没有潜力",e:{attack:-1}},
+    {l:"关我什么事——我练我的",e:{vibe:1}}
+  ]},{t:"打了一个漂亮的得本后，最真实的反应是？",o:[
+    {l:"大喊一声——全场都给我听着！",e:{vibe:-1}},
+    {l:"心里狂喜——脸上装没事人",e:{vibe:1}},
+    {l:"复盘怎么蒙上的——下次还能不能再蒙一回",e:{attack:-1}}
+  ]},{t:"对手突然猛攻，你会？",o:[
+    {l:"迎上去——看谁先碎，我赌是他",e:{grit:-1,attack:1}},
+    {l:"先撤半步——让他冲累了再说",e:{grit:1,attack:-1}},
+    {l:"一边撤一边喊——气势不能输",e:{vibe:-1,grit:-1}}
+  ]},{t:"训练后半段体力快见底了，你会？",game:"reaction",o:[
+    {l:"咬牙硬撑——死也要站着",e:{grit:-1,effort:1}},
+    {l:"降速苟着——打完就是胜利",e:{grit:1,effort:-1}},
+    {l:"靠喊声续命——喊越大声我越不累",e:{vibe:-1,grit:-1}}
+  ]},{t:"别人说你动作丑但有效，你怎么回？",o:[
     {l:"有效就行——丑怎么了，你又打不过我",e:{attack:1,grit:-1}},
     {l:"有点在意——回头调整调整",e:{effort:1,vibe:1}},
     {l:"大家笑我也笑——笑归笑分我拿了",e:{vibe:-1,attack:-1}}
-  ]},
-  {t:"馆里只有你跟一个不太熟的人，你会？",o:[
-    {l:"主动搭话——不能冷场",e:{vibe:-1}},
-    {l:"各练各的——这种默契最舒服",e:{vibe:1}},
-    {l:"先观察——看看什么水平再决定动不动手",e:{attack:-1}}
-  ]},
-  {t:"用一个词形容你的剑道风格？",o:[
-    {l:"猛——先上了再说",e:{attack:1,grit:-1}},
-    {l:"稳——不出错就是最大进攻",e:{attack:-1,grit:1}},
-    {l:"浪——今天猛明天稳看我心情",e:{vibe:-1}}
-  ]},
-  {t:"如果可以跳过基础，最想多练什么？",o:[
-    {l:"实战稽古——真刀真枪干最爽",e:{grit:-1,attack:1}},
-    {l:"动作细节——基础决定上限",e:{attack:-1,effort:1}},
-    {l:"都行——练什么不是练",e:{effort:-1}}
-  ]},
-  {t:"最受不了哪种训练场景？",o:[
+  ]},{t:"最受不了哪种训练场景？",o:[
     {l:"节奏太慢——等得人想打人",e:{attack:1,grit:-1}},
     {l:"强度太大——我感觉快交代在这儿了",e:{effort:-1,grit:1}},
     {l:"没人说话——太压抑了说句话行不行",e:{vibe:-1}}
-  ]},
-  {t:"给未来的自己一句关于剑道的话？",o:[
+  ]},{t:"不小心打到对方手，你会？",o:[
+    {l:"马上道歉——对不起对不起！",e:{vibe:1,grit:1}},
+    {l:"假装没发生——继续打下一个",e:{attack:1,grit:-1}},
+    {l:"嘴上道歉——心里想：谁让你手举那么低",e:{attack:-1}}
+  ]},{t:"别人说你打太凶了，你？",game:"runaway",o:[
+    {l:"凶就对了——又不是来喝下午茶的",e:{grit:-1,attack:1}},
+    {l:"有吗——我觉得还好啊",e:{grit:1}},
+    {l:"好——下次偷偷凶，不让你看出来",e:{attack:-1}}
+  ]},{t:"明天有一场馆内比赛，你今晚会？",o:[
+    {l:"临阵磨枪——加练几组",e:{effort:1}},
+    {l:"早睡——养足精神明天干",e:{effort:-1}},
+    {l:"想战术——先把明天的对手打一遍",e:{attack:-1}}
+  ]},{t:"遇到一个一直不出手的对手，你会？",o:[
+    {l:"他不打我打——直接冲",e:{attack:1}},
+    {l:"他不打我更好——看谁先急",e:{attack:-1,grit:1}},
+    {l:"假动作骗他——骗出破绽再下手",e:{attack:-1}}
+  ]},{t:"练剑道的终极目标是？",o:[
+    {l:"变强——干掉所有人",e:{effort:1,attack:1}},
+    {l:"开心就好——练到老打到老",e:{effort:-1,grit:1}},
+    {l:"追求剑道境界——活成自己的一部分",e:{attack:-1}}
+  ]},{t:"换好护具第一件事？",o:[
+    {l:"扫一圈今天谁来——盘一下跟谁打有得赚",e:{attack:-1}},
+    {l:"直接找人开干——热身就是干",e:{attack:1}},
+    {l:"先发呆——等身体自己开机",e:{effort:-1}}
+  ]},{t:"用一个词形容你的剑道风格？",game:"firstmove",o:[
+    {l:"猛——先上了再说",e:{attack:1,grit:-1}},
+    {l:"稳——不出错就是最大进攻",e:{attack:-1,grit:1}},
+    {l:"浪——今天猛明天稳看我心情",e:{vibe:-1}}
+  ]},{t:"如果可以跳过基础，最想多练什么？",o:[
+    {l:"实战稽古——真刀真枪干最爽",e:{grit:-1,attack:1}},
+    {l:"动作细节——基础决定上限",e:{attack:-1,effort:1}},
+    {l:"都行——练什么不是练",e:{effort:-1}}
+  ]},{t:"师父纠正你的动作，你会？",o:[
+    {l:"认真听认真改——下次必须搞对",e:{effort:1}},
+    {l:"听懂了——但身体说：你懂个屁",e:{effort:-1}},
+    {l:"记下来——回头琢磨怎么变成自己的阴招",e:{attack:-1}}
+  ]},{t:"师父说「今天练切返」，你心里？",o:[
+    {l:"切返是我的强项——看我表演",e:{effort:1}},
+    {l:"切返好累——能跳过直接打稽古吗",e:{effort:-1}},
+    {l:"切返就切返——找个角落自己慢慢抡",e:{vibe:1}}
+  ]},{t:"一个技术反复练不好，你怎么办？",o:[
+    {l:"换下一个——人生不是只有这一下",e:{effort:-1}},
+    {l:"死磕——今天必须打出个说法",e:{effort:1,grit:-1}},
+    {l:"停下来想想——哪个环节出了问题",e:{attack:-1}}
+  ]},{t:"给未来的自己一句关于剑道的话？",game:"breath",o:[
     {l:"别停——继续干就完了",e:{effort:1,grit:-1}},
     {l:"活着就好——别受伤，下次还能来",e:{effort:-1,grit:1}},
     {l:"玩开心点——认真你就输了",e:{vibe:-1,effort:-1}}
-  ]}
-];
+  ]},{t:"师父让所有人练面击，你会？",o:[
+    {l:"先看别人打——找最省力的路子",e:{attack:-1}},
+    {l:"用力喊用力打——师父，看我！我！在！练！",e:{vibe:-1}},
+    {l:"默默打自己的——不求最好但求不出错",e:{vibe:1}}
+  ]},{t:"训练完一起吃饭，你会？",o:[
+    {l:"必须去——来都来了不吃亏了",e:{vibe:-1}},
+    {l:"看情况——太累就不去了",e:{effort:-1}},
+    {l:"去——但闷头吃谁也别跟我说话",e:{vibe:1}}
+  ]},{t:"馆里只有你跟一个不太熟的人，你会？",o:[
+    {l:"主动搭话——不能冷场",e:{vibe:-1}},
+    {l:"各练各的——这种默契最舒服",e:{vibe:1}},
+    {l:"先观察——看看什么水平再决定动不动手",e:{attack:-1}}
+  ]},{t:"你觉得自己在馆里是什么段位的存在？",o:[
+    {l:"人未到声先到——大家知道我来了",e:{vibe:-1}},
+    {l:"可有可无——你练你的我练我的",e:{vibe:1}},
+    {l:"平时隐身——关键时刻才被想起",e:{vibe:1,attack:-1}}
+  ]},{t:"今天状态差，但人已经到了馆里，你会？",game:"tap",o:[
+    {l:"来都来了——混完就是赢",e:{effort:-1}},
+    {l:"越烂越练——不练只会更烂",e:{effort:1}},
+    {l:"先跟人吹水——状态靠聊出来",e:{vibe:-1}}
+  ]},{t:"自由稽古配对，你最想跟谁打？",o:[
+    {l:"打得凶的——越猛越有得学",e:{grit:-1}},
+    {l:"打得稳的——安全第一",e:{grit:1}},
+    {l:"打得菜的——正好拿新招练练手",e:{attack:-1}}
+  ]},{t:"训练中场休息，你在干嘛？",o:[
+    {l:"找水找地方坐——能不动就不动",e:{effort:-1}},
+    {l:"还在练——别人休息我偷偷加练",e:{effort:1}},
+    {l:"满馆溜达——看谁打得好、谁又在白给",e:{attack:-1}}
+  ]},{t:"师父说「再来十组」，你心里在想？",o:[
+    {l:"来就来——谁怕谁",e:{effort:1,grit:-1}},
+    {l:"能少一组是一组——命重要",e:{effort:-1,grit:1}},
+    {l:"行吧——反正也没别的安排",e:{effort:-1}}
+  ]}];
 
 // ── 16 Results ──
 const R={
@@ -351,6 +373,204 @@ const R={
 
 // ── Scoring ──
 const scores={attack:0,effort:0,vibe:0,grit:0},last={attack:0,effort:0,vibe:0,grit:0};
+
+// ── Game Engine ──
+var gcb=null;
+function showFB(ok,msg){
+  var fb=document.getElementById("fb");
+  if(!fb)return;
+  fb.textContent=msg||(ok?"\u2714\uFE0F \u505A\u5BF9\u4E86":"\u274C \u6309\u9519\u4E86");
+  fb.className="fb "+(ok?"ok":"fail")+" show";
+  setTimeout(function(){fb.className="fb";},500);
+}
+function startGame(gt,cb){
+  try{
+    gcb=cb;
+    var TG={tap:"\u26A1 \u5341\u5206\u949F\u7684\u547D",reaction:"\uD83D\uDDE1\uFE0F \u65B9\u4F4D\u6253\u51FB",runaway:"\uD83C\uDFC3 \u6293\u4E0D\u4F4F\u6211",firstmove:"\u2694\uFE0F \u5148\u4E4B\u5148",breath:"\uD83E\uDEC1 \u6B8B\u5FC3"};
+    var TD={tap:"10\u79D2\u72C2\u70B9\u2014\u2014\u770B\u770B\u4F60\u8FD8\u6709\u591A\u5C11\u4F53\u529B",reaction:"\u4EAE\u4E86\u5C31\u6253\u2014\u2014\u53C8\u5FEB\u53C8\u51C6\u624D\u662F\u597D\u5251\u58EB",runaway:"\u6309\u94AE\u4F1A\u8DD1\u2014\u2014\u6293\u4F4F\u5B83\uFF01",firstmove:"\u51FA\u624B\u8FD8\u662F\u4E0D\u51FA\u624B\uFF1F1.5\u79D2\u51B3\u5B9A",breath:"\u618B\u4F4F\u2014\u2014\u770B\u770B\u4F60\u80FD\u6297\u591A\u4E45"};
+    document.getElementById("game-tag").textContent=TG[gt]||"";
+    document.getElementById("game-title").textContent=TD[gt]||"";
+    document.getElementById("pq2").textContent=TG[gt]||"";
+    document.getElementById("pf2").style.width=((cur+1)/Q.length*100)+"%";
+    var ui=document.getElementById("game-ui");
+    ui.innerHTML="";
+    // KEY FIX: SHOW GAME STAGE, HIDE QUIZ STAGE
+    document.getElementById("game-stage").classList.remove("hidden");
+    document.getElementById("quiz-stage").classList.add("hidden");
+    if(gt==="tap")itT(ui);
+    else if(gt==="reaction")itR(ui);
+    else if(gt==="runaway")itB(ui);
+    else if(gt==="firstmove")itF(ui);
+    else if(gt==="breath")itH(ui);
+  }catch(e){var ge=document.getElementById("game-error");if(ge){ge.style.display="block";ge.textContent="\u9519\u8BEF: "+e.message;}}
+}
+function endGame(adj){
+  try{
+    if(adj)Object.keys(adj).forEach(function(k){scores[k]+=adj[k];});
+    document.getElementById("game-stage").classList.add("hidden");
+    document.getElementById("quiz-stage").classList.remove("hidden");
+    if(gcb)gcb();
+  }catch(e){}
+}
+
+// ── Tap Game ──
+function itT(ui){
+  try{
+    var c=0,p=0,st,ti;
+    ui.innerHTML='<div class="ta" id="tA"><div class="tc" id="tC">0</div><div class="tl">\u70B9\u8FD9\u91CC\uFF01</div></div><div class="gi"><span>\u26A1 <strong id="tR">\u51C6\u5907</strong></span><span>10\u79D2</span></div>';
+    var a=document.getElementById("tA"),ct=document.getElementById("tC"),nf=document.getElementById("tR");
+    a.addEventListener("pointerdown",function(){if(p){c++;ct.textContent=c;}});
+    setTimeout(function(){
+      p=1;c=0;ct.textContent="0";st=Date.now();nf.textContent="\u5F00\u59CB!";
+      ti=setInterval(function(){
+        var el=(Date.now()-st)/1000;
+        if(el>=10){
+          clearInterval(ti);p=0;a.style.pointerEvents="none";nf.textContent=c+" \u6B21";
+          var adj={};
+          if(c>=100)adj={effort:2};else if(c>=70)adj={effort:1};else if(c<40)adj={grit:1};
+          setTimeout(function(){endGame(adj);},800);
+        }else{nf.textContent=(10-el).toFixed(1)+"s";}
+      },100);
+    },600);
+  }catch(e){var ge=document.getElementById("game-error");if(ge){ge.style.display="block";ge.textContent+=" | itT: "+e.message;}}
+}
+
+// ── Reaction Game (4 zones) ──
+function itR(ui){
+  try{
+    var r=0,h=0,m=0,mx=0,cb=0,ac=0,ti,tr=10;
+    var pz=["men","kote","do","tsuki"];
+    var Z={men:"rM",kote:"rK",do:"rD",tsuki:"rT"};
+    var LN={men:"\u9762",kote:"\u5C0F\u624B",do:"\u80B4",tsuki:"\u523A\u5589"};
+    var SN={men:"MEN",kote:"KOTE",do:"DO",tsuki:"TSUKI"};
+    ui.innerHTML='<div class="r4">'+
+      ['men','kote','do','tsuki'].map(function(z){
+        return '<div class="r4z" id="'+Z[z]+'">'+LN[z]+'<br><span style="font-size:.5rem;font-weight:400;opacity:.5">'+SN[z]+'</span></div>';
+      }).join('')+
+      '</div><div class="gi"><span>\uD83C\uDFAF <strong id="rI">0</strong>/10</span><span>\uD83D\uDD25<span id="rC">0</span></span></div>';
+    function rz(){document.querySelectorAll(".r4z").forEach(function(z2){z2.classList.remove("active","hit","miss");});}
+    function nr(){
+      if(r>=tr){
+        var rt=h/(h+m||1);var adj={};
+        if(rt>=.7)adj.attack=1;
+        if(mx>=5)adj.effort=1;
+        if(rt<.4)adj.grit=1;
+        setTimeout(function(){endGame(adj);},800);
+        return;
+      }
+      r++;ac=0;rz();
+      setTimeout(function(){
+        if(r>tr)return;ac=1;
+        var z=pz[Math.floor(Math.random()*4)];
+        document.getElementById(Z[z]).classList.add("active");
+        document.getElementById("rI").textContent=r+"/"+tr;
+        ti=setTimeout(function(){
+          if(ac){ac=0;m++;cb=0;showFB(0,"\u65F6\u95F4\u5230!");document.getElementById("rC").textContent="0";nr();}
+        },1800);
+      },400);
+    }
+    document.querySelectorAll(".r4z").forEach(function(zone){
+      zone.addEventListener("pointerdown",function(){
+        if(!ac)return;clearTimeout(ti);ac=0;
+        if(this.classList.contains("active")){
+          h++;cb++;if(cb>mx)mx=cb;
+          this.classList.remove("active");this.classList.add("hit");
+          document.getElementById("rC").textContent=cb;
+          showFB(1);
+        }else{
+          m++;cb=0;
+          this.classList.add("miss");
+          document.getElementById("rC").textContent="0";
+          showFB(0);
+        }
+        setTimeout(function(){rz();nr();},400);
+      });
+    });
+    setTimeout(nr,500);
+  }catch(e){var ge=document.getElementById("game-error");if(ge){ge.style.display="block";ge.textContent+=" | itR: "+e.message;}}
+}
+
+// ── Runaway Game ──
+function itB(ui){
+  try{
+    var r=0,c=0,tr=3,ac=0,ti,mi;
+    var tx=["\u6765\u6293\u6211","\u563F\u563F","\u8FD9\u8FB9","\u6E9C\u4E86","\u4F60\u4E0D\u884C","\u5C31\u4E0D"];
+    ui.innerHTML='<div class="rw" id="bW"><button class="rb" id="bB" style="left:50%;top:50%;transform:translate(-50%,-50%)">\u6765\u6293\u6211</button></div><div class="gi"><span>\uD83D\uDC50 <strong id="bC">0</strong>/3</span><span>\u7B2C <span id="bR">1</span>/3\u8F6E</span></div>';
+    var btn=document.getElementById("bB"),wp=document.getElementById("bW");
+    function mv(){
+      if(!ac)return;var wr=wp.getBoundingClientRect();
+      btn.style.left=(Math.random()*(wr.width-120))+"px";btn.style.top=(Math.random()*(wr.height-50))+"px";btn.style.transform="none";
+      btn.textContent=tx[Math.floor(Math.random()*tx.length)];
+    }
+    function nx(){
+      if(r>=tr){
+        var adj={};
+        if(c>=3)adj={attack:1,vibe:-1};else if(c<=1)adj={grit:1};
+        if(c===tr)adj.effort=(adj.effort||0)+1;
+        setTimeout(function(){endGame(adj);},600);return;
+      }
+      r++;ac=0;btn.classList.remove("caught","missed");
+      btn.textContent="\u6765\u6293\u6211";btn.style.left="50%";btn.style.top="50%";btn.style.transform="translate(-50%,-50%)";
+      document.getElementById("bR").textContent=r;
+      setTimeout(function(){
+        if(!ac){ac=1;mv();}
+        mi=setInterval(mv,300);
+        ti=setTimeout(function(){if(ac){ac=0;clearInterval(mi);showFB(0,"\u8DD1\u4E86!");setTimeout(nx,500);}},2500);
+      },400);
+    }
+    btn.addEventListener("pointerdown",function(){
+      if(!ac)return;ac=0;clearInterval(mi);clearTimeout(ti);c++;
+      showFB(1);document.getElementById("bC").textContent=c;
+      setTimeout(nx,600);
+    });
+    setTimeout(nx,500);
+  }catch(e){var ge=document.getElementById("game-error");if(ge){ge.style.display="block";ge.textContent+=" | itB: "+e.message;}}
+}
+
+// ── FirstMove Game ──
+function itF(ui){
+  try{
+    var sc=[{s:"\u5BF9\u624B\u5411\u4F60\u51B2\u6765",c:"attack"},{s:"\u4F60\u521A\u6253\u5B8C\u4E00\u7EC4\u9762\u51FB\uFF0C\u5BF9\u624B\u9732\u51FA\u7834\u7EFD",c:"attack"},{s:"\u5BF9\u624B\u7A81\u7136\u76F2\u653B\uFF0C\u6C14\u52BF\u6C79\u6C79",c:"defend"},{s:"\u5BF9\u624B\u773C\u795E\u53D8\u4E86\uFF0C\u4ED6\u8981\u51FA\u624B\u4E86",c:"attack"},{s:"\u5BF9\u624B\u4FDD\u6301\u8DDD\u79BB\uFF0C\u5728\u7B49\u4F60\u5148\u52A8",c:"defend"},{s:"\u4F60\u4F53\u529B\u5FEB\u89C1\u5E95\u4E86\uFF0C\u5BF9\u624B\u8FD8\u7CBE\u795E\u9971\u6EE1",c:"defend"},{s:"\u4F60\u88AB\u903C\u5230\u573A\u8FB9\uFF0C\u540E\u9762\u6CA1\u8DEF\u4E86",c:"attack"},{s:"\u5BF9\u624B\u51FA\u5251\u5F88\u6162\uFF0C\u597D\u50CF\u5728\u8BD5\u63A2",c:"defend"},{s:"\u4F60\u611F\u89C9\u4ECA\u5929\u72B6\u6001\u5F88\u597D",c:"attack"},{s:"\u5BF9\u624B\u521A\u521A\u88AB\u5F97\u672C\uFF0C\u5FC3\u6001\u6709\u70B9\u5D29",c:"attack"},{s:"\u4F60\u7684\u62A4\u5177\u6709\u70B9\u677E",c:"defend"},{s:"\u5BF9\u624B\u51B7\u7B11\u4E86\u4E00\u4E0B\uFF0C\u6709\u8BC8",c:"defend"},{s:"\u5E08\u7236\u5728\u65C1\u8FB9\u770B\u7740",c:"attack"},{s:"\u5BF9\u624B\u6B65\u4F10\u5F00\u59CB\u4E71\u4E86",c:"attack"},{s:"\u4F60\u89C9\u5F97\u8FD9\u4E00\u5251\u4E0D\u5BF9\u52B2",c:"defend"}];
+    var r=0,ok=0,no=0,tr=5,ac=0,ti;
+    var sh=sc.sort(function(){return Math.random()-.5;}).slice(0,tr);
+    ui.innerHTML='<div class="fms" id="fS">\u5BF9\u624B\u5411\u4F60\u51B2\u6765</div><div class="fmb"><div class="fm" data-choice="attack" id="fA"><div class="da">\u2694\uFE0F \u51FA\u624B</div><div class="dl">\u5148\u624B\u5236\u4EBA</div></div><div class="fm" data-choice="defend" id="fD"><div class="da">\uD83D\uDED1\uFE0F \u4E0D\u51FA\u624B</div><div class="dl">\u6B8B\u5FC3\u89C2\u5BDF</div></div></div><div class="gi"><span>\u2705<strong id="fO">0</strong> \u274C<strong id="fN">0</strong></span><span id="fR">1/5\u8F6E</span></div>';
+    function nx(){
+      if(r>=tr){var rt=ok/(ok+no||1);var adj={};if(rt>=.8)adj.attack=-1;else if(rt<.5)adj.attack=1;setTimeout(function(){endGame(adj);},600);return;}
+      var s=sh[r];ac=0;
+      document.getElementById("fS").textContent=s.s;
+      document.getElementById("fR").textContent=(r+1)+"/"+tr+"\u8F6E";
+      document.querySelectorAll(".fm").forEach(function(b){b.classList.remove("correct","wrong");});
+      setTimeout(function(){if(r>=tr)return;ac=1;
+        ti=setTimeout(function(){if(!ac)return;ac=0;no++;document.getElementById("fN").textContent=no;document.getElementById(s.c==="attack"?"fA":"fD").classList.add("correct");showFB(0,"\u65F6\u95F4\u5230!");setTimeout(function(){r++;nx();},600);},1500);
+      },400);
+    }
+    document.querySelectorAll(".fm").forEach(function(b){
+      b.addEventListener("pointerdown",function(){
+        if(!ac)return;ac=0;clearTimeout(ti);
+        if(this.dataset.choice===sh[r].c){ok++;this.classList.add("correct");showFB(1);}else{no++;this.classList.add("wrong");document.getElementById(sh[r].c==="attack"?"fA":"fD").classList.add("correct");showFB(0);}
+        document.getElementById("fO").textContent=ok;document.getElementById("fN").textContent=no;
+        setTimeout(function(){r++;nx();},700);
+      });
+    });
+    setTimeout(nx,500);
+  }catch(e){var ge=document.getElementById("game-error");if(ge){ge.style.display="block";ge.textContent+=" | itF: "+e.message;}}
+}
+
+// ── Breath Game ──
+function itH(ui){
+  try{
+    var h=0,st=0,rf;
+    ui.innerHTML='<div class="ba" id="bHA"><div class="bl"><div class="bl2" style="height:70px"><div class="f" id="bF" style="height:95%"></div></div><div class="bl2" style="height:80px"><div style="height:95%"></div></div></div><div class="bt" id="bT">0.0</div><div class="bu">\u79D2</div><p style="font-size:.75rem;color:#5a6274;margin-top:6px">\u6DF1\u5438\u4E00\u53E3\u6C14\uFF0C\u70B9\u5C4F\u5E55\u5F00\u59CB\u618B</p></div>';
+    var t=document.getElementById("bT"),f=document.getElementById("bF"),a=document.getElementById("bHA");
+    function ul(p){f.style.height=Math.max(15,p)+"%";}
+    function sh(){h=1;st=performance.now();ul(100);t.textContent="0.0";t.style.color="#e0e4ed";
+      (function tk(){if(!h)return;var el=(performance.now()-st)/1000;var dr=Math.max(0,100-(el*3.5));ul(dr);t.textContent=el.toFixed(1);t.style.color=el>15?"#f44336":(el>8?"#ff9800":"#e0e4ed");if(dr<=0){rl();return;}rf=requestAnimationFrame(tk);})();
+    }
+    function rl(){h=0;cancelAnimationFrame(rf);var el=(performance.now()-st)/1000;t.textContent=el.toFixed(1);t.style.color="#e0e4ed";ul(0);showFB(1,"\u618B\u4E86 "+el.toFixed(1)+" \u79D2!");var adj={};if(el>=40)adj={grit:-1,effort:1};else if(el>=25)adj={effort:1};else if(el<15)adj={grit:1};setTimeout(function(){endGame(adj);},1200);}
+    a.addEventListener("pointerdown",function(){if(!h){sh();showFB(1,"\u5F00\u59CB\u618B\u6C14!");}else{rl();}});
+  }catch(e){var ge=document.getElementById("game-error");if(ge){ge.style.display="block";ge.textContent+=" | itH: "+e.message;}}
+}
+
 let cur=0;
 
 function al(k){return scores[k]<0||(scores[k]===0&&last[k]<=0)}
@@ -427,21 +647,27 @@ function renderQ(){
 }
 
 function ans(e){
-  Object.entries(e).forEach(([k,v])=>{scores[k]+=v;last[k]=v<0?-1:1});
-  if(cur<Q.length-1){cur++;renderQ();return}
-  showR();
+  Object.keys(e).forEach(function(k){scores[k]+=e[k];last[k]=e[k]<0?-1:1;});
+  if(cur<Q.length-1){
+    if(Q[cur].game){startGame(Q[cur].game,function(){cur++;renderQ();});}
+    else{cur++;renderQ();}
+    return;
+  }
+  if(Q[cur].game){startGame(Q[cur].game,function(){showR();});}
+  else{showR();
+  }
 }
 
 function showR(){
   const c=code(),res=R[c],m=mp();
   const dims=[ab('attack'),ab('effort'),ab('vibe'),ab('grit')];
   rn.textContent=res.n;rc.textContent=res.cd;
-  rm.textContent='匹配度 '+m+'% · '+cc()+'型';
+  rm.textContent='匹配度 '+m+'%';
   $('ravatar').innerHTML=av(res);
   rs.textContent=res.s;rd2.textContent=res.d;rso.textContent=res.so;
   rad.textContent=res.a;rsh.textContent=res.sh;
   rt.innerHTML='';res.tg.forEach(t=>{const s=document.createElement('span');s.textContent=t;rt.appendChild(s)});
-  rd.innerHTML='';dims.forEach(d=>{const n=document.createElement('div');n.className='dim-item';n.textContent=d;rd.appendChild(n)});
+  // dims hidden
   stage.classList.add('hidden');panel.classList.add('hidden');
   rpanel.classList.remove('hidden');rpanel.scrollIntoView({behavior:'smooth',block:'start'});
 }
