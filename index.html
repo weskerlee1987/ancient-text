@@ -816,7 +816,7 @@ function startGame(gt,cb){
   try{
     gcb=cb;
     curGame=gt;
-    var info=GINFO[gt];
+    var info=GINFO[gt]||GINFO.tap;   // 兜底：gt异常时回退到tap，防止info未定义崩溃
     var tag=document.getElementById("game-tag");
     var title=document.getElementById("game-title");
     var pq2=document.getElementById("pq2");
