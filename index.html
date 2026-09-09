@@ -847,13 +847,14 @@ function startGame(gt,cb){
       +'<div class="gi-desc" style="background:rgba(11,20,14,.3);border-color:rgba(212,168,83,.14)">'+info.go+'</div>'
       +'<button class="btn-primary" id="gs-start">开始游戏</button>'
       +'</div>';
+    var g2=(GINFO[gt]?gt:'tap');   // 防御:gt异常时也保证能进 tap,不再卡空
     document.getElementById("gs-start").addEventListener("click",function(){
       ui.innerHTML="";
-      if(gt==="tap")itT(ui,finish);
-      else if(gt==="reaction")itR(ui,finish);
-      else if(gt==="runaway")itB(ui,finish);
-      else if(gt==="firstmove")itF(ui,finish);
-      else if(gt==="dodge")itD(ui,finish);
+      if(g2==="tap")itT(ui,finish);
+      else if(g2==="reaction")itR(ui,finish);
+      else if(g2==="runaway")itB(ui,finish);
+      else if(g2==="firstmove")itF(ui,finish);
+      else if(g2==="dodge")itD(ui,finish);
     });
   }catch(e){var ge=document.getElementById("game-error");if(ge){ge.style.display="block";ge.textContent="错误: "+e.message;}}
 }
@@ -1204,11 +1205,14 @@ function makeDeck(){
   var picks=pool.slice(0,SUB);
   var games=sf(['tap','reaction','runaway','firstmove','dodge']);
   var slots=new Array(picks.length+games.length);
-  var targets=[],gap=Math.max(1,Math.floor(slots.length/(games.length+1)));
+  var targets=[],gap=Math.max(1,Math.floor(slots.length/(games.length+1))),used={};
   for(var i=1;i<=games.length;i++){
-    var at=i*gap-1+Math.floor(Math.random()*(gap+1));
-    if(at>=slots.length)at=slots.length-1;
-    targets.push(at);
+    var lo=i*gap-1,hi=i*gap-1+gap;
+    if(hi>=slots.length)hi=slots.length-1;
+    var at=lo+Math.floor(Math.random()*(hi-lo+1)),g=0;
+    while(used[at]&&g++<25){at=lo+Math.floor(Math.random()*(hi-lo+1));}  // 区间重叠(端点)可能重复,重随机直到不重复,防游戏占位减少→picks不足→q=undefined
+    if(used[at]){for(var k=0;k<slots.length;k++){if(!used[k]){at=k;break;}}}   // 全满兜底找空位
+    used[at]=1;targets.push(at);
   }
   targets.sort(function(a,b){return a-b;});
   for(var i=0;i<games.length;i++){slots[targets[i]]={g:games[i]};}
