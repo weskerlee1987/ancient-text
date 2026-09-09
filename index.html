@@ -66,7 +66,7 @@ body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sa
 .result-summary{padding:.8rem;border-radius:14px;background:rgba(212,168,83,.06);border:1px solid rgba(212,168,83,.08);font-size:.85rem;font-weight:600;line-height:1.5;color:#e0e4ed;margin-top:.6rem}
 .result-verdict{margin-top:.6rem;padding:.7rem .8rem;border-radius:14px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);text-align:left}
 .result-verdict .vl{font-size:.6rem;color:#5a6274;font-weight:500;letter-spacing:2px;margin-bottom:4px}
-.result-verdict .vt{font-size:.75rem;color:#8892a4;line-height:1.55;font-weight:400}
+.result-verdict .vt{font-size:.8rem;color:#f1f3f8;line-height:1.6;font-weight:400}
 .result-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:.7rem}
 .result-tags span{padding:4px 8px;border-radius:6px;font-size:.7rem;font-weight:500;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);color:#6b7280}
 .dim-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:.6rem}
@@ -82,7 +82,7 @@ body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sa
 .result-notes{display:grid;gap:10px;margin-top:.7rem}
 .result-notes article{padding:1rem;border-radius:18px;background:rgba(26,30,43,.6);border:1px solid rgba(255,255,255,.04)}
 .result-notes h3{font-size:.85rem;font-weight:600;color:#d4a853;margin-bottom:5px}
-.result-notes p{font-size:.75rem;color:#6b7280;line-height:1.6;margin:0}
+.result-notes p{font-size:.78rem;color:#f1f3f8;line-height:1.7;margin:0}
 .scroll-hint{margin-top:.7rem;font-size:.62rem;color:#3a4254;text-align:center;letter-spacing:1px}
 .scroll-hint::after{content:" \2193";color:#d4a853}
 
@@ -151,29 +151,29 @@ body{font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sa
 .dodge-hearts .od{opacity:.18}
 .dodge-tip{font-size:.68rem;color:#4a5264;text-align:center;margin-top:.35rem}
 .gi-rule .lvl{color:#f44336;font-weight:700}
+/* 简略版结果图（保存用） */
+.mini-card{width:480px;padding:24px;background:linear-gradient(160deg,#141929,#0b0e17);border-radius:20px;box-sizing:border-box;text-align:center;position:fixed;left:-10000px;top:0}
+.mini-card .mc-top{font-size:13px;color:#d4a853;letter-spacing:3px;margin-bottom:14px}
+.mini-card .mc-ava{width:110px;height:110px;border-radius:16px;overflow:hidden;margin:0 auto 12px;border:1px solid rgba(212,168,83,.3)}
+.mini-card .mc-ava img{width:100%;height:100%;object-fit:cover;display:block}
+.mini-card .mc-name{font-size:26px;font-weight:800;color:#fff}
+.mini-card .mc-code{font-size:13px;color:#8892a4;margin-top:4px}
+.mini-card .mc-bars{margin:16px 0;text-align:left}
+.mini-card .mc-bar{margin:9px 0}
+.mini-card .mc-bar .lb{font-size:13px;color:#eef1f6;margin-bottom:4px;display:flex;justify-content:space-between}
+.mini-card .mc-bar .tk{width:100%;height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
+.mini-card .mc-bar .tf{height:100%;background:linear-gradient(90deg,#d4a853,#ffd98a);border-radius:999px}
+.mini-card .mc-judge{margin-top:14px;padding:12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(212,168,83,.2);font-size:14px;color:#f1f3f8;line-height:1.6}
+.mini-card .mc-foot{margin-top:14px;font-size:12px;color:#5a6274;letter-spacing:2px}
+/* 结果图预览浮层 */
+.photo-modal{position:fixed;inset:0;background:rgba(0,0,0,.84);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;padding:20px;box-sizing:border-box}
+.photo-modal.show{display:flex}
+.photo-modal img{max-width:88vw;max-height:72vh;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+.photo-modal .pm-tip{margin-top:14px;color:#f1f3f8;font-size:15px;text-align:center;line-height:1.7}
+.photo-modal .pm-tip b{color:#d4a853}
+.photo-modal .pm-close{margin-top:16px;padding:10px 34px;background:rgba(212,168,83,.15);border:1px solid rgba(212,168,83,.4);border-radius:999px;color:#d4a853;font-size:14px;cursor:pointer}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
-// 保存结果图：把结果卡截成图片
-$('save-result').addEventListener('click',function(){
-  var btn=this;
-  if(!window.html2canvas){btn.textContent='加载组件中...';var ns=document.createElement('script');ns.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';ns.onload=function(){doSave(btn);};document.head.appendChild(ns);return;}
-  doSave(btn);
-});
-function doSave(btn){
-  btn.textContent='生成中...';
-  html2canvas($('rcard'),{backgroundColor:'#0b0e17',scale:2,useCORS:true}).then(function(canvas){
-    var url=canvas.toDataURL('image/png');
-    try{
-      var link=document.createElement('a');
-      link.href=url;link.download='我的剑道人形测试结果.png';
-      document.body.appendChild(link);link.click();document.body.removeChild(link);
-      btn.textContent='已生成，可保存/分享';setTimeout(function(){btn.textContent='保存结果图';},2200);
-    }catch(e){ btn.textContent='长按下方图片保存';
-      var w=window.open('','_blank');if(w){w.document.write('<img src="'+url+'" style="width:100%;max-width:480px;margin:0 auto;display:block">');w.document.title='我的剑道人形测试结果';}
-    }
-  }).catch(function(e){btn.textContent='生成失败:'+e.message;});
-}
-</script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 <canvas id="stars-canvas"></canvas>
@@ -249,25 +249,34 @@ function doSave(btn){
   <p class="scroll-hint">下滑还有馆友锐评和服药指南</p>
 </div>
 
-<div class="share-panel">
-  <div class="share-box">
-    <p class="sl">分享文案</p>
-    <p class="st" id="rshare"></p>
-  </div>
-  <div class="share-acts">
-    <button class="btn-primary" id="copy-result">复制文案</button>
-    <button class="btn-primary" id="save-result">保存结果图</button>
-    <button class="btn-ghost" id="restart-quiz">重新测一遍</button>
-  </div>
-</div>
-
 <div class="result-notes">
   <article><h3>小游戏战绩</h3><p id="rgame"></p></article>
   <article><h3>人格深度解析</h3><p id="rdeep"></p></article>
   <article><h3>馆友锐评</h3><p id="rsocial"></p></article>
   <article><h3>服药指南</h3><p id="radvice"></p></article>
 </div>
+
+<div class="share-panel">
+  <div class="share-box">
+    <p class="sl">分享文案</p>
+    <p class="st" id="rshare"></p>
+  </div>
+  <div class="share-acts">
+    <button class="btn-primary" id="save-result">保存结果图</button>
+    <button class="btn-ghost" id="restart-quiz">重新测一遍</button>
+  </div>
+</div>
 </section>
+</div>
+
+<!-- 简略版结果图（保存/截图用） -->
+<div class="mini-card" id="miniCard"></div>
+
+<!-- 结果图预览浮层 -->
+<div class="photo-modal" id="photoModal">
+  <img id="pmImg" alt="结果图">
+  <p class="pm-tip">长按<b>下方图片</b>可保存到相册，<br>或直接截屏留存</p>
+  <button class="pm-close" id="pmClose">关 闭</button>
 </div>
 
 <script>
@@ -906,7 +915,7 @@ function itT(ui,finish){
 // ── Reaction Game (4 zones) ──
 function itR(ui,finish){
   try{
-    var r=0,h=0,m=0,mx=0,cb=0,ac=0,ti,tr=10;
+    var r=0,h=0,m=0,mx=0,cb=0,ac=0,ti,tr=10,lt=0,rts=[];
     var pz=["men","kote","do","tsuki"];
     var Z={men:"rM",kote:"rK",do:"rD",tsuki:"rT"};
     var LN={men:"面",kote:"小手",do:"胴",tsuki:"刺喉"};
@@ -915,7 +924,7 @@ function itR(ui,finish){
       ['men','kote','do','tsuki'].map(function(z){
         return '<div class="r4z" id="'+Z[z]+'">'+LN[z]+'<br><span style="font-size:.5rem;font-weight:400;opacity:.5">'+SN[z]+'</span></div>';
       }).join('')+
-      '</div><div class="gi"><span>🎯 <strong id="rI">0</strong>/10</span><span>🔥<span id="rC">0</span></span></div>';
+      '</div><div class="gi"><span>🎯 <strong id="rI">0</strong>/10</span><span>🔥<span id="rC">0</span></span><span>⏱<span id="rTv">--</span></span></div>';
     function rz(){document.querySelectorAll(".r4z").forEach(function(z2){z2.classList.remove("active","hit","miss");});}
     function nr(){
       if(r>=tr){
@@ -923,18 +932,24 @@ function itR(ui,finish){
         if(rt>=.7)adj.attack=1;
         if(mx>=5)adj.effort=1;
         if(rt<.4)adj.grit=1;
-        var sub= rt>=.7?"又快又准，好剑士":(rt>=.4?"中规中矩":"反应慢了半拍");
-        finish(adj,h+" 下命中","命中率 "+Math.round(rt*100)+"%"+(mx>=5?" · 最佳连击 "+mx:""));
+        var avg=rts.length?rts.reduce(function(a,b){return a+b},0)/rts.length:0;
+        if(rts.length>=5&&avg<=550)adj.attack=(adj.attack||0)+1;
+        if(rts.length>=5&&avg>=1000)adj.grit=(adj.grit||0)+1;
+        var sub= rt>=.7?(avg&&avg<=700?"快且准，势先到":"又快又准，好剑士"):(rt>=.4?"中规中矩":"反应慢了半拍");
+        if(rts.length>=5&&avg>=1000)sub="稳，慢，但不乱";
+        var extra=rts.length?(" · 平均反应 "+(avg/1000).toFixed(2)+"s"):"";
+        finish(adj,h+" 下命中","命中率 "+Math.round(rt*100)+"%"+(mx>=5?" · 最佳连击 "+mx:"")+extra);
         return;
       }
       r++;ac=0;rz();
       setTimeout(function(){
         if(r>tr)return;ac=1;
         var z=pz[Math.floor(Math.random()*4)];
+        lt=new Date().getTime();
         document.getElementById(Z[z]).classList.add("active");
         document.getElementById("rI").textContent=r+"/"+tr;
         ti=setTimeout(function(){
-          if(ac){ac=0;m++;cb=0;showFB(0,"时间到!");document.getElementById("rC").textContent="0";nr();}
+          if(ac){ac=0;m++;cb=0;showFB(0,"时间到!");document.getElementById("rC").textContent="0";document.getElementById("rTv").textContent="--";nr();}
         },1800);
       },400);
     }
@@ -942,9 +957,11 @@ function itR(ui,finish){
       zone.addEventListener("pointerdown",function(){
         if(!ac)return;clearTimeout(ti);ac=0;
         if(this.classList.contains("active")){
+          var dt=new Date().getTime()-lt;rts.push(dt);
           h++;cb++;if(cb>mx)mx=cb;
           this.classList.remove("active");this.classList.add("hit");
           document.getElementById("rC").textContent=cb;
+          document.getElementById("rTv").textContent=(dt/1000).toFixed(2)+"s";
           showFB(1);
         }else{
           m++;cb=0;
@@ -1305,9 +1322,48 @@ function showR(){
 
 $('start-quiz').addEventListener('click',start);
 $('restart-quiz').addEventListener('click',start);
-$('copy-result').addEventListener('click',async()=>{
-  try{await navigator.clipboard.writeText(rsh.textContent);$('copy-result').textContent='已复制';setTimeout(()=>{$('copy-result').textContent='复制文案'},1600)}
-  catch(e){$('copy-result').textContent='复制失败，请手动长按'}
+
+// ── 保存结果图：生成简略版图 + 提示截图保存 ──
+function buildMini(){
+  var c=code(),res=R[c],mini=document.getElementById('miniCard');
+  var DKL={attack:'攻',effort:'炼',vibe:'显',grit:'韧'};
+  var barsHtml=['attack','effort','vibe','grit'].map(function(k){
+    var s=ab(k),m=s.match(/(\d+)%/);
+    var p=m?Math.min(100,parseInt(m[1])):50;
+    return '<div class="mc-bar"><div class="lb"><span>'+DKL[k]+'</span><span>'+s+'</span></div><div class="tk"><div class="tf" style="width:'+p+'%"></div></div></div>';
+  }).join('');
+  mini.innerHTML=
+    '<div class="mc-top">XYPD · 新月剑道馆</div>'+
+    '<div class="mc-ava"><img src="assets/'+res.n+'.webp" alt="'+res.n+'"></div>'+
+    '<div class="mc-name">'+res.n+'</div>'+
+    '<div class="mc-code">'+res.cd+'</div>'+
+    '<div class="mc-bars">'+barsHtml+'</div>'+
+    '<div class="mc-judge">'+rd2.textContent+'</div>'+
+    '<div class="mc-foot">— 剑道人形测试 · 新月馆后勤人员 出品 —</div>';
+  return mini;
+}
+function doSave(btn){
+  btn.textContent='生成中...';
+  var mini=buildMini();
+  mini.style.left='0px';mini.style.top='0px';mini.style.opacity='0';mini.style.zIndex='-1';
+  html2canvas(mini,{backgroundColor:'#0b0e17',scale:2,useCORS:true}).then(function(canvas){
+    var url=canvas.toDataURL('image/png');
+    document.getElementById('pmImg').src=url;
+    document.getElementById('photoModal').classList.add('show');
+    btn.textContent='已生成';setTimeout(function(){btn.textContent='保存结果图';},2200);
+    mini.style.left='-10000px';mini.style.opacity='1';mini.innerHTML='';
+  }).catch(function(e){
+    btn.textContent='生成失败:'+e.message;
+    mini.style.left='-10000px';mini.style.opacity='1';mini.innerHTML='';
+  });
+}
+$('save-result').addEventListener('click',function(){
+  var btn=this;
+  if(!window.html2canvas){btn.textContent='加载组件中...';var ns=document.createElement('script');ns.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';ns.onload=function(){doSave(btn);};document.head.appendChild(ns);return;}
+  doSave(btn);
+});
+document.getElementById('pmClose').addEventListener('click',function(){
+  document.getElementById('photoModal').classList.remove('show');
 });
 </script>
 </body>
