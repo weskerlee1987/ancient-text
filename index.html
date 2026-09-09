@@ -1344,17 +1344,16 @@ function buildMini(){
 }
 function doSave(btn){
   btn.textContent='生成中...';
-  var mini=buildMini();
-  mini.style.left='0px';mini.style.top='0px';mini.style.opacity='0';mini.style.zIndex='-1';
+  var mini=buildMini();   // mini 保持 CSS left:-10000px(离屏) 且 opacity=1(不可设0,否则html2canvas不绘制内容)
   html2canvas(mini,{backgroundColor:'#0b0e17',scale:2,useCORS:true}).then(function(canvas){
     var url=canvas.toDataURL('image/png');
     document.getElementById('pmImg').src=url;
     document.getElementById('photoModal').classList.add('show');
     btn.textContent='已生成';setTimeout(function(){btn.textContent='保存结果图';},2200);
-    mini.style.left='-10000px';mini.style.opacity='1';mini.innerHTML='';
+    mini.innerHTML='';
   }).catch(function(e){
     btn.textContent='生成失败:'+e.message;
-    mini.style.left='-10000px';mini.style.opacity='1';mini.innerHTML='';
+    mini.innerHTML='';
   });
 }
 $('save-result').addEventListener('click',function(){
